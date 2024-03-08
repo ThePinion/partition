@@ -1,3 +1,7 @@
+pub mod characteristic;
+pub mod fft;
+pub mod subset_sum;
+
 #[cfg(test)]
 mod tests;
 
