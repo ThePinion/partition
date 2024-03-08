@@ -4,9 +4,9 @@ impl Characteristic {
     pub fn with_size_1d(size: usize) -> Characteristic1d {
         Characteristic1d { size }
     }
-    pub fn with_size_2d(x_size: usize, y_size: usize) -> Characteristic2d {
-        Characteristic2d { x_size, y_size }
-    }
+    // pub fn with_size_2d(x_size: usize, y_size: usize) -> Characteristic2d {
+    //     Characteristic2d { x_size, y_size }
+    // }
 }
 
 pub trait CharacteristicTrait<T> {
@@ -38,19 +38,19 @@ impl<'a> CharacteristicTrait<u64> for &'a Characteristic1d {
     }
 }
 
-pub struct Characteristic2d {
-    x_size: usize,
-    y_size: usize,
-}
-impl<'a> CharacteristicTrait<(u64, u64)> for &'a Characteristic2d {
-    fn encode(self, value: &[(u64, u64)]) -> Vec<bool> {
-        todo!()
-    }
+// pub struct Characteristic2d {
+//     x_size: usize,
+//     y_size: usize,
+// }
+// impl<'a> CharacteristicTrait<(u64, u64)> for &'a Characteristic2d {
+//     fn encode(self, value: &[(u64, u64)]) -> Vec<bool> {
+//         todo!()
+//     }
 
-    fn decode(self, characteristic: &[bool]) -> Vec<(u64, u64)> {
-        todo!()
-    }
-}
+//     fn decode(self, characteristic: &[bool]) -> Vec<(u64, u64)> {
+//         todo!()
+//     }
+// }
 
 // fn characteristic_vector_2d(a: &[(u64, u64)]) -> Vec<bool> {
 //     let max_x = a.iter().map(|(x, _)| x).max().unwrap_or(&0u64);
