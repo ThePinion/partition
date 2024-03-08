@@ -29,8 +29,8 @@ impl<'a> CharacteristicTrait<u64> for &'a Characteristic1d {
 
     fn decode(self, characteristic: &[bool]) -> Vec<u64> {
         let mut out = vec![];
-        for i in 0..characteristic.len() {
-            if characteristic[i] {
+        for (i, val) in characteristic.iter().enumerate() {
+            if *val {
                 out.push(i as u64);
             }
         }

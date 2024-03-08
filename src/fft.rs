@@ -17,20 +17,20 @@ impl FFT {
         }
     }
     pub fn convolute_characteristic_vecs(&mut self, a: &[bool], b: &[bool]) -> Vec<bool> {
-        for i in 0..a.len() {
-            self.points_a[i] = Complex::new(if a[i] { 1.0 } else { 0.0 }, 0f32);
+        for (i, val) in a.iter().enumerate() {
+            self.points_a[i] = Complex::new(if *val { 1.0 } else { 0.0 }, 0f32);
         }
 
-        for i in 0..b.len() {
-            self.points_b[i] = Complex::new(if b[i] { 1.0 } else { 0.0 }, 0f32);
+        for (i, val) in b.iter().enumerate() {
+            self.points_b[i] = Complex::new(if *val { 1.0 } else { 0.0 }, 0f32);
         }
 
         let fft = self.planner.plan_fft_forward(self.size);
         fft.process(&mut self.points_a);
         fft.process(&mut self.points_b);
 
-        for i in 0..self.size {
-            self.points_a[i] *= self.points_b[i];
+        for (i, val) in self.points_b.iter().enumerate() {
+            self.points_a[i] *= val;
         }
 
         let fft_inv = self.planner.plan_fft_inverse(self.size);
