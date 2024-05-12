@@ -30,3 +30,49 @@ pub fn subset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
         .convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
     encoder.decode(&characteristic)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashSet;
+
+    use super::*;
+
+    fn test_1d(a: &[u64], b: &[u64]) {
+        let result = HashSet::from_iter(subset_sum(a, b));
+        let mut expected = HashSet::new();
+        for i in a {
+            for j in b {
+                expected.insert(i + j);
+            }
+        }
+        assert_eq!(result, expected);
+    }
+
+    fn test_2d(a: &[(u64, u64)], b: &[(u64, u64)]) {
+        let result = HashSet::from_iter(subset_sum_2d(a, b));
+        let mut expected = HashSet::new();
+        for (i, j) in a {
+            for (k, l) in b {
+                expected.insert((i + k, j + l));
+            }
+        }
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_subset_sum() {
+        test_1d(&[1, 2], &[1, 100]);
+        test_1d(&[1, 2], &[]);
+        test_1d(&[], &[1, 100]);
+        test_1d(&[], &[]);
+        test_1d(&[1, 2, 3], &[1, 2, 3]);
+    }
+
+    #[test]
+    fn test_subset_sum_2d() {
+        test_2d(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]);
+        test_2d(&[(1, 0), (2, 1)], &[]);
+        test_2d(&[], &[(1, 10), (100, 20)]);
+        test_2d(&[], &[]);
+    }
+}
