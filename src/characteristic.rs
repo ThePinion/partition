@@ -12,6 +12,7 @@ impl Characteristic {
 pub trait CharacteristicTrait<T> {
     fn encode(self, value: &[T]) -> Vec<bool>;
     fn decode(self, characteristic: &[bool]) -> Vec<T>;
+    fn fft_size(self) -> usize;
 }
 
 pub struct Characteristic1d {
@@ -36,6 +37,10 @@ impl<'a> CharacteristicTrait<u64> for &'a Characteristic1d {
         }
         out
     }
+
+    fn fft_size(self) -> usize {
+        self.size
+    }
 }
 
 pub struct Characteristic2d {
@@ -59,6 +64,10 @@ impl<'a> CharacteristicTrait<(u64, u64)> for &'a Characteristic2d {
             }
         }
         out
+    }
+
+    fn fft_size(self) -> usize {
+        self.x_size * self.y_size
     }
 }
 
