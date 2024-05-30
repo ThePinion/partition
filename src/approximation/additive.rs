@@ -97,6 +97,8 @@ fn fft2d_complexity(start: u64, size: u64, t: u64, delta: u64) -> u64 {
 
 #[cfg(test)]
 mod tests {
+    use test::verify_approximation;
+
     use super::*;
 
     fn verify_merge(a: &[u64], b: &[u64], t: u64, delta: u64) {

@@ -46,7 +46,7 @@ impl MultiplicativeBoundedMerger {
 
 #[cfg(test)]
 mod tests {
-    use crate::helpers::verify_approximation;
+    use crate::helpers::test::verify_approximation;
 
     use super::*;
 

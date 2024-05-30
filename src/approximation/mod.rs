@@ -47,7 +47,7 @@ impl SumsetApproximation {
 
 #[cfg(test)]
 mod tests {
-    use crate::helpers::{self, naive_sumset};
+    use crate::helpers::{self, test::naive_sumset};
 
     use super::*;
 
@@ -56,7 +56,7 @@ mod tests {
         let end = set.iter().max().copied().unwrap_or(0);
         assert!(start * 2 >= end);
         let approximation = SumsetApproximation::new(start, delta).approximate(&set);
-        helpers::verify_approximation(&approximation, &naive_sumset(&set), delta, 0);
+        helpers::test::verify_approximation(&approximation, &naive_sumset(&set), delta, 0);
     }
 
     #[test]
@@ -72,7 +72,7 @@ mod tests {
         verify_approximation(
             vec![
                 200, 120, 130, 140, 150, 160, 170, 180, 190, 210, 121, 123, 124, 125, 126, 126,
-                126, 126, 126, 126, 126, 126, 126, 126,
+                126, 126, 126, 126, 126, 126,
             ]
             .into_iter()
             .map(|x| x * 1000000000)
