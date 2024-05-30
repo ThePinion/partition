@@ -70,10 +70,13 @@ mod tests {
     #[test]
     fn test_approximate_large() {
         verify_approximation(
-            vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11]
-                .into_iter()
-                .map(|x| x * 1000000000)
-                .collect(),
+            vec![
+                200, 120, 130, 140, 150, 160, 170, 180, 190, 210, 121, 123, 124, 125, 126, 126,
+                126, 126, 126, 126, 126, 126, 126, 126,
+            ]
+            .into_iter()
+            .map(|x| x * 1000000000)
+            .collect(),
             0.1,
         );
     }
