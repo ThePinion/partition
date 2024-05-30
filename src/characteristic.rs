@@ -43,6 +43,7 @@ impl<'a> CharacteristicTrait<u64> for &'a Characteristic1d {
     }
 }
 
+#[derive(Debug)]
 pub struct Characteristic2d {
     x_size: usize,
     y_size: usize,
@@ -50,7 +51,7 @@ pub struct Characteristic2d {
 impl<'a> CharacteristicTrait<(u64, u64)> for &'a Characteristic2d {
     fn encode(self, value: &[(u64, u64)]) -> Vec<bool> {
         let mut encoded = vec![false; self.x_size * self.y_size];
-
+        dbg!(self, value);
         for (x, y) in value {
             dbg!(x, y);
             encoded[(x * self.y_size as u64 + y) as usize] = true;

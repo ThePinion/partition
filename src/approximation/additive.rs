@@ -73,7 +73,7 @@ impl AdditiveBoundedMerger {
             .filter(|&&n| n <= self.t)
             .map(|n| {
                 let x = n / self.start;
-                let y = (n - x) / self.base;
+                let y = (n - (x * self.start)) / self.base;
                 (x, y)
             })
             .collect()
@@ -122,8 +122,8 @@ mod tests {
         verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 6);
 
         verify_merge(
-            &(1..100).into_iter().collect::<Vec<_>>(),
-            &(2..20000).into_iter().collect::<Vec<_>>(),
+            &(1000..1500).into_iter().collect::<Vec<_>>(),
+            &(1500..1000).into_iter().collect::<Vec<_>>(),
             2000000,
             100,
         )
