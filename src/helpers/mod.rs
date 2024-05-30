@@ -78,9 +78,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_reduce_multiplicity() {
+    fn test_reduce_multiplicity_1() {
         let set = vec![1, 2, 2, 2, 4, 4, 3, 3, 3, 1, 3, 3, 3, 3];
         let reduced = reduce_multiplicity(&set);
         assert_eq!(reduced, vec![1, 1, 2, 3, 4, 6, 8, 12]);
+    }
+    #[test]
+    fn test_reduce_multiplicity_2() {
+        let set = vec![1, 1, 1, 2, 2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128];
+        let reduced = reduce_multiplicity(&set);
+        assert_eq!(reduced, vec![1, 2, 4, 8, 16, 32, 64, 128, 256]);
     }
 }
