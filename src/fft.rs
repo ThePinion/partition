@@ -40,7 +40,7 @@ impl FFT {
         let product_coefficients: Vec<bool> = self
             .points_a
             .iter()
-            .map(|c| c.re >= self.size as f32 * 0.9)
+            .map(|c| c.re >= self.size as f32 * 0.95)
             .collect();
         product_coefficients
     }

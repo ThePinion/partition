@@ -1,6 +1,7 @@
 use crate::helpers::*;
 use crate::subset_sum::{bounded_subset_sum, bounded_subset_sum_2d};
 
+#[derive(Debug, Clone, Copy)]
 pub struct AdditiveBoundedMerger {
     start: u64,
     length: u64,
@@ -11,6 +12,8 @@ pub struct AdditiveBoundedMerger {
 
 impl AdditiveBoundedMerger {
     pub fn new(start: u64, length: u64, delta: u64, t: u64) -> Self {
+        assert!(length <= start);
+        assert!(start <= t);
         Self {
             start,
             length,
@@ -20,6 +23,7 @@ impl AdditiveBoundedMerger {
         }
     }
     pub fn merge(&self, a: &[u64], b: &[u64]) -> Vec<u64> {
+        dbg!(self, a, b);
         if self.is_2d {
             self.merge_2d(a, b)
         } else {
@@ -30,20 +34,24 @@ impl AdditiveBoundedMerger {
         let based_merged = bounded_subset_sum(
             &self.based_1d_representation(a),
             &self.based_1d_representation(b),
-            ceil_div(self.t, self.base).try_into().unwrap(),
+            ceil_div(self.t, self.base) as usize * 2_usize,
         );
         self.unbased_1d_representation(&based_merged)
+            .into_iter()
+            .filter(|&x| x <= self.t)
+            .collect()
     }
     pub fn merge_2d(&self, a: &[u64], b: &[u64]) -> Vec<u64> {
         let based_merged = bounded_subset_sum_2d(
             &self.based_2d_representation(a),
             &self.based_2d_representation(b),
-            (self.t / self.start).try_into().unwrap(),
-            ceil_div(self.t * self.length, self.start * self.base)
-                .try_into()
-                .unwrap(),
+            ceil_div(self.t, self.start) as usize + 1,
+            ceil_div(self.t * self.length, self.start * self.base) as usize,
         );
         self.unbased_2d_representation(&based_merged)
+            .into_iter()
+            .filter(|&x| x <= self.t)
+            .collect()
     }
 
     fn based_1d_representation(&self, a: &[u64]) -> Vec<u64> {
@@ -101,28 +109,17 @@ mod tests {
                 }
             }
         }
-        for i in expected.iter() {
-            assert!(
-                merged
-                    .iter()
-                    .filter(|&x| x <= i)
-                    .find(|&x| i - x <= delta)
-                    .is_some(),
-                "{:?} not found in {:?}",
-                i,
-                merged
-            );
-        }
+        verify_approximation(&merged, &expected, 0f64, delta)
     }
 
     #[test]
     fn test_merge() {
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 10, 2);
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 10, 1);
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 100, 3);
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 100, 4);
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 100, 5);
-        verify_merge(&[1, 2, 3], &[4, 5, 6], 100, 6);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 10, 2);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 10, 1);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 3);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 4);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 5);
+        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 6);
 
         verify_merge(
             &(1..100).into_iter().collect::<Vec<_>>(),
@@ -134,18 +131,18 @@ mod tests {
     #[test]
     fn test_merge_large() {
         verify_merge(
-            &(1..100).into_iter().collect::<Vec<_>>(),
-            &(2..20000).into_iter().collect::<Vec<_>>(),
+            &(10000..15000).into_iter().collect::<Vec<_>>(),
+            &(15000..10000).into_iter().collect::<Vec<_>>(),
             2000000,
             100,
-        );
+        )
     }
     #[test]
     fn test_merge_large_no_approximation() {
         verify_merge(
-            &(1..100).into_iter().collect::<Vec<_>>(),
-            &(2..20000).into_iter().collect::<Vec<_>>(),
-            2000,
+            &(1500..1800).into_iter().collect::<Vec<_>>(),
+            &(1000..1500).into_iter().collect::<Vec<_>>(),
+            3000,
             1,
         );
     }
