@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 #[cfg(test)]
 pub mod test;
 
@@ -33,5 +35,52 @@ impl Iterator for PowerOfTwoIterator {
             self.current *= 2;
             Some(result)
         }
+    }
+}
+
+pub fn reduce_multiplicity(set: &[u64]) -> Vec<u64> {
+    let mut map = BTreeMap::new();
+    let mut new_map = BTreeMap::new();
+    for i in set {
+        *map.entry(*i).or_insert(0_u64) += 1;
+    }
+    for (&key, &mult) in map.iter() {
+        reduce_single_element(key, mult, &mut new_map);
+    }
+    new_map
+        .into_iter()
+        .flat_map(|(key, mult)| std::iter::repeat(key).take(mult as usize))
+        .collect()
+}
+
+// Rust std doesn't have a tree-like structure that supports indexing in log(n) time
+// This workaround slightly deviates from the paper but is correct nonetheless
+fn reduce_single_element(number: u64, mult: u64, map: &mut BTreeMap<u64, u64>) {
+    if mult == 0 {
+        return;
+    }
+    let mult = mult + map.get(&number).copied().unwrap_or(0);
+    if mult <= 2 {
+        map.insert(number, mult);
+        return;
+    }
+    if mult % 2 == 1 {
+        map.insert(number, 1);
+    } else {
+        map.insert(number, 2);
+    }
+    let mult = (mult - 1) / 2;
+    reduce_single_element(number * 2, mult, map);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_reduce_multiplicity() {
+        let set = vec![1, 2, 2, 2, 4, 4, 3, 3, 3, 1, 3, 3, 3, 3];
+        let reduced = reduce_multiplicity(&set);
+        assert_eq!(reduced, vec![1, 1, 2, 3, 4, 6, 8, 12]);
     }
 }
