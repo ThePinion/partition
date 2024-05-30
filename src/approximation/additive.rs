@@ -47,8 +47,8 @@ impl AdditiveBoundedMerger {
         let based_merged = bounded_subset_sum_2d(
             &self.based_2d_representation(a),
             &self.based_2d_representation(b),
-            ceil_div(self.t, self.start) as usize + 1,
-            ceil_div(self.t * self.length, self.start * self.base).max(1) as usize,
+            ceil_div(self.t, self.start) as usize * 2_usize,
+            ceil_div(self.t * self.length, self.start * self.base).max(1) as usize * 2_usize,
         );
         self.unbased_2d_representation(&based_merged)
             .into_iter()
@@ -91,7 +91,8 @@ fn fft1d_complexity(t: u64, delta: u64) -> u64 {
     ceil_div(t, delta)
 }
 fn fft2d_complexity(start: u64, size: u64, t: u64, delta: u64) -> u64 {
-    ceil_div(size * t, start * delta) * t / start
+    let (start, size, t, delta) = (start as f64, size as f64, t as f64, delta as f64);
+    (t / start * t / start * size / delta) as u64 + 1
 }
 
 #[cfg(test)]

@@ -67,17 +67,14 @@ mod tests {
         verify_approximation(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.0001);
         verify_approximation(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.5);
     }
-
-    // #[test]
+    #[test]
     fn test_approximate_large() {
-        verify_approximation((101..200).into_iter().collect(), 0.1);
-        verify_approximation((101..200).into_iter().collect(), 0.01);
-        verify_approximation((101..200).into_iter().collect(), 0.001);
-        verify_approximation((101..200).into_iter().collect(), 0.0001);
-        verify_approximation((101..200).into_iter().collect(), 0.5);
-    }
-    // #[test]
-    fn test_approximate_large2() {
-        verify_approximation((101..200).into_iter().map(|x| x * 1000).collect(), 0.1);
+        verify_approximation(
+            vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11]
+                .into_iter()
+                .map(|x| x * 1000000000)
+                .collect(),
+            0.1,
+        );
     }
 }
