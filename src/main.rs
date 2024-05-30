@@ -1,6 +1,5 @@
-use partition::subset_sum::*;
+use partition::approximation::SumsetApproximation;
 
 fn main() {
-    dbg!(subset_sum(&[1, 2], &[1, 100]));
-    dbg!(subset_sum_2d(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]));
+    dbg!(SumsetApproximation::new(10, 0.1).approximate(&[10, 12, 13, 14]));
 }

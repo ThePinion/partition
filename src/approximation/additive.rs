@@ -23,7 +23,9 @@ impl AdditiveBoundedMerger {
         }
     }
     pub fn merge(&self, a: &[u64], b: &[u64]) -> Vec<u64> {
-        dbg!(self, a, b);
+        if a.is_empty() || b.is_empty() {
+            return vec![];
+        }
         if self.is_2d {
             self.merge_2d(a, b)
         } else {
@@ -46,7 +48,7 @@ impl AdditiveBoundedMerger {
             &self.based_2d_representation(a),
             &self.based_2d_representation(b),
             ceil_div(self.t, self.start) as usize + 1,
-            ceil_div(self.t * self.length, self.start * self.base) as usize,
+            ceil_div(self.t * self.length, self.start * self.base).max(1) as usize,
         );
         self.unbased_2d_representation(&based_merged)
             .into_iter()

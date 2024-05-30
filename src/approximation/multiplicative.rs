@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::helpers::{ceil_div, PowerOfTwoIterator};
 
-use super::AdditiveBoundedMerger;
+use super::additive::AdditiveBoundedMerger;
 
 pub struct MultiplicativeBoundedMerger {
     start: u64,
@@ -23,9 +23,11 @@ impl MultiplicativeBoundedMerger {
         }
     }
     pub fn merge(&self, a: &[u64], b: &[u64]) -> Vec<u64> {
+        if a.is_empty() || b.is_empty() {
+            return vec![];
+        }
         let mut result = HashSet::new();
         for r in PowerOfTwoIterator::new(ceil_div(self.start, 6), self.t) {
-            dbg!(r, self.start, self.t);
             let merged = self.merge_interval(a, b, r);
             result.extend(merged);
         }
@@ -97,5 +99,11 @@ mod tests {
             3000,
             0.00001,
         );
+    }
+    #[test]
+    fn test_merge_small() {
+        verify_merge(&[], &[], 25, 0.1);
+        verify_merge(&[1], &[], 25, 0.1);
+        verify_merge(&[1], &[1], 25, 0.1);
     }
 }
