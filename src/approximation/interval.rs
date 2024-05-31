@@ -1,4 +1,4 @@
-use super::multiplicative::MultiplicativeBoundedMerger;
+use super::MultiplicativeBoundedMerger;
 
 pub enum SumsetEpsilonAdditiveAproximation {}
 

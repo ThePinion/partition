@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::helpers::{ceil_div, PowerOfTwoIterator};
 
-use super::additive::AdditiveBoundedMerger;
+use super::AdditiveBoundedMerger;
 
 pub struct MultiplicativeBoundedMerger {
     start: u64,

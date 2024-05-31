@@ -1,12 +1,14 @@
 use std::{collections::HashMap, ops::Add};
 
-use interval::SumsetEpsilonAdditiveAproximation;
-
 use crate::helpers::reduce_multiplicity;
 
-pub mod additive;
+pub mod additive_merge;
 pub mod interval;
-pub mod multiplicative;
+pub mod multiplicative_merge;
+
+pub use additive_merge::AdditiveBoundedMerger;
+pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximation};
+pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
 pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
     let n = input.len();
