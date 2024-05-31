@@ -101,7 +101,7 @@ mod tests {
 
     use super::*;
 
-    fn verify_merge(a: &[u64], b: &[u64], t: u64, delta: u64) {
+    fn verify_additive_merge(a: &[u64], b: &[u64], t: u64, delta: u64) {
         let start = a.iter().chain(b.iter()).min().copied().unwrap_or(0);
         let end = a.iter().chain(b.iter()).max().copied().unwrap_or(0);
         let merger = AdditiveBoundedMerger::new(start, end - start, delta, t);
@@ -118,35 +118,35 @@ mod tests {
     }
 
     #[test]
-    fn test_merge() {
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 10, 2);
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 10, 1);
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 3);
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 4);
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 5);
-        verify_merge(&[10, 12, 13], &[14, 15, 16], 100, 6);
+    fn test_additive_merge() {
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 10, 2);
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 10, 1);
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 100, 3);
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 100, 4);
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 100, 5);
+        verify_additive_merge(&[10, 12, 13], &[14, 15, 16], 100, 6);
 
-        verify_merge(
-            &(1000..1500).into_iter().collect::<Vec<_>>(),
-            &(1500..1000).into_iter().collect::<Vec<_>>(),
+        verify_additive_merge(
+            &(1000..1500).collect::<Vec<_>>(),
+            &(1500..1000).collect::<Vec<_>>(),
             2000000,
             100,
         )
     }
     #[test]
-    fn test_merge_large() {
-        verify_merge(
-            &(10000..15000).into_iter().collect::<Vec<_>>(),
-            &(15000..10000).into_iter().collect::<Vec<_>>(),
+    fn test_additive_merge_large() {
+        verify_additive_merge(
+            &(10000..15000).collect::<Vec<_>>(),
+            &(15000..10000).collect::<Vec<_>>(),
             2000000,
             100,
         )
     }
     #[test]
-    fn test_merge_large_no_approximation() {
-        verify_merge(
-            &(1500..1800).into_iter().collect::<Vec<_>>(),
-            &(1000..1500).into_iter().collect::<Vec<_>>(),
+    fn test_additive_merge_large_barely_approximate() {
+        verify_additive_merge(
+            &(1500..1800).collect::<Vec<_>>(),
+            &(1000..1500).collect::<Vec<_>>(),
             3000,
             1,
         );

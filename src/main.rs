@@ -1,5 +1,5 @@
-use partition::approximation::SumsetApproximation;
+use partition::approximation::interval::SumsetIntervalApproximation;
 
 fn main() {
-    dbg!(SumsetApproximation::new(10, 0.1).approximate(&[10, 12, 13, 14]));
+    dbg!(SumsetIntervalApproximation::new(10, 0.1).approximate(&[10, 12, 13, 14]));
 }

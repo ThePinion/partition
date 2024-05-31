@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, ops::Add};
 
 #[cfg(test)]
 pub mod test;
@@ -38,24 +38,27 @@ impl Iterator for PowerOfTwoIterator {
     }
 }
 
-pub fn reduce_multiplicity(set: &[u64]) -> Vec<u64> {
+pub fn reduce_multiplicity<T>(set: &[T]) -> BTreeMap<T, usize>
+where
+    T: Copy + Ord + Add<Output = T>,
+{
     let mut map = BTreeMap::new();
     let mut new_map = BTreeMap::new();
     for i in set {
-        *map.entry(*i).or_insert(0_u64) += 1;
+        *map.entry(*i).or_insert(0_usize) += 1;
     }
     for (&key, &mult) in map.iter() {
         reduce_single_element(key, mult, &mut new_map);
     }
     new_map
-        .into_iter()
-        .flat_map(|(key, mult)| std::iter::repeat(key).take(mult as usize))
-        .collect()
 }
 
 // Rust std doesn't have a tree-like structure that supports indexing in log(n) time
 // This workaround slightly deviates from the paper but is correct nonetheless
-fn reduce_single_element(number: u64, mult: u64, map: &mut BTreeMap<u64, u64>) {
+fn reduce_single_element<T>(number: T, mult: usize, map: &mut BTreeMap<T, usize>)
+where
+    T: Copy + Ord + Add<Output = T>,
+{
     if mult == 0 {
         return;
     }
@@ -70,7 +73,7 @@ fn reduce_single_element(number: u64, mult: u64, map: &mut BTreeMap<u64, u64>) {
         map.insert(number, 2);
     }
     let mult = (mult - 1) / 2;
-    reduce_single_element(number * 2, mult, map);
+    reduce_single_element(number + number, mult, map);
 }
 
 #[cfg(test)]
@@ -81,12 +84,24 @@ mod tests {
     fn test_reduce_multiplicity_1() {
         let set = vec![1, 2, 2, 2, 4, 4, 3, 3, 3, 1, 3, 3, 3, 3];
         let reduced = reduce_multiplicity(&set);
-        assert_eq!(reduced, vec![1, 1, 2, 3, 4, 6, 8, 12]);
+        assert_eq!(
+            reduced
+                .into_iter()
+                .flat_map(|(key, mult)| std::iter::repeat(key).take(mult))
+                .collect::<Vec<_>>(),
+            vec![1, 1, 2, 3, 4, 6, 8, 12]
+        );
     }
     #[test]
     fn test_reduce_multiplicity_2() {
         let set = vec![1, 1, 1, 2, 2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128];
         let reduced = reduce_multiplicity(&set);
-        assert_eq!(reduced, vec![1, 2, 4, 8, 16, 32, 64, 128, 256]);
+        assert_eq!(
+            reduced
+                .into_iter()
+                .flat_map(|(key, mult)| std::iter::repeat(key).take(mult))
+                .collect::<Vec<_>>(),
+            vec![1, 2, 4, 8, 16, 32, 64, 128, 256]
+        );
     }
 }

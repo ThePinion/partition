@@ -50,7 +50,7 @@ mod tests {
 
     use super::*;
 
-    fn verify_merge(a: &[u64], b: &[u64], t: u64, delta: f64) {
+    fn verify_multiplicative_merge(a: &[u64], b: &[u64], t: u64, delta: f64) {
         let start = a.iter().chain(b.iter()).min().copied().unwrap_or(0);
         let end = a.iter().chain(b.iter()).max().copied().unwrap_or(0);
         let merger = MultiplicativeBoundedMerger::new(start, end - start, delta, t);
@@ -67,43 +67,43 @@ mod tests {
     }
 
     #[test]
-    fn test_merge() {
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+    fn test_multiplicative_merge() {
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
 
-        verify_merge(
-            &(1000..1500).into_iter().collect::<Vec<_>>(),
-            &(1500..1000).into_iter().collect::<Vec<_>>(),
+        verify_multiplicative_merge(
+            &(1000..1500).collect::<Vec<_>>(),
+            &(1500..1000).collect::<Vec<_>>(),
             2000000,
             0.1,
         )
     }
     #[test]
-    fn test_merge_large() {
-        verify_merge(
-            &(10000..15000).into_iter().collect::<Vec<_>>(),
-            &(15000..10000).into_iter().collect::<Vec<_>>(),
+    fn test_multiplicative_merge_large() {
+        verify_multiplicative_merge(
+            &(10000..15000).collect::<Vec<_>>(),
+            &(15000..10000).collect::<Vec<_>>(),
             2000000,
             0.1,
         )
     }
     #[test]
-    fn test_merge_large_no_approximation() {
-        verify_merge(
-            &(1500..1800).into_iter().collect::<Vec<_>>(),
-            &(1000..1500).into_iter().collect::<Vec<_>>(),
+    fn test_multiplicative_merge_large_barely_approximate() {
+        verify_multiplicative_merge(
+            &(1500..1800).collect::<Vec<_>>(),
+            &(1000..1500).collect::<Vec<_>>(),
             3000,
             0.00001,
         );
     }
     #[test]
-    fn test_merge_small() {
-        verify_merge(&[], &[], 25, 0.1);
-        verify_merge(&[1], &[], 25, 0.1);
-        verify_merge(&[1], &[1], 25, 0.1);
+    fn test_multiplicative_merge_small() {
+        verify_multiplicative_merge(&[], &[], 25, 0.1);
+        verify_multiplicative_merge(&[1], &[], 25, 0.1);
+        verify_multiplicative_merge(&[1], &[1], 25, 0.1);
     }
 }

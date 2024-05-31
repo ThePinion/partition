@@ -79,8 +79,8 @@ mod tests {
         test_1d(&[], &[]);
         test_1d(&[1, 2, 3], &[1, 2, 3]);
         test_1d(
-            &(0..100).into_iter().collect::<Vec<_>>(),
-            &(2..20000).into_iter().collect::<Vec<_>>(),
+            &(0..100).collect::<Vec<_>>(),
+            &(2..20000).collect::<Vec<_>>(),
         )
     }
 
@@ -91,11 +91,8 @@ mod tests {
         test_2d(&[], &[(1, 10), (100, 20)]);
         test_2d(&[], &[]);
         test_2d(
-            &(0..100).into_iter().map(|a| (a, a + 6)).collect::<Vec<_>>(),
-            &(200..300)
-                .map(|a| (a, a + 600))
-                .into_iter()
-                .collect::<Vec<_>>(),
+            &(0..100).map(|a| (a, a + 6)).collect::<Vec<_>>(),
+            &(200..300).map(|a| (a, a + 600)).collect::<Vec<_>>(),
         )
     }
 }

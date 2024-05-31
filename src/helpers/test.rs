@@ -9,8 +9,7 @@ pub fn verify_approximation(
             approximation
                 .iter()
                 .filter(|&a| a <= b)
-                .find(|&a| ((1f64 - delta_mul) * (*b as f64)) as u64 <= *a + delta_add)
-                .is_some(),
+                .any(|a| ((1f64 - delta_mul) * (*b as f64)) as u64 <= *a + delta_add),
             "{:?} (actual) not found in approximation: {:?}",
             b,
             approximation
@@ -21,8 +20,7 @@ pub fn verify_approximation(
             expected
                 .iter()
                 .filter(|&b| a <= b)
-                .find(|&b| ((1f64 - delta_mul) * (*b as f64)) as u64 <= *a + delta_add)
-                .is_some(),
+                .any(|b| ((1f64 - delta_mul) * (*b as f64)) as u64 <= *a + delta_add),
             "{:?} (1-{:?}, {:?})-approximation not found in (expected) {:?}",
             a,
             delta_mul,
