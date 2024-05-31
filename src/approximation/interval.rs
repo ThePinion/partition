@@ -22,7 +22,12 @@ impl SumsetIntervalApproximation {
         let n = set.len();
         let delta = self.delta / (n as f64).log2().ceil();
         for x in set {
-            assert!(self.start <= *x && *x <= self.start * 2)
+            assert!(
+                self.start <= *x && *x <= self.start * 2,
+                "{}, {}",
+                self.start,
+                x
+            )
         }
         self.approximate_recursive(set, dbg!(delta))
     }

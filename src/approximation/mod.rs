@@ -1,5 +1,7 @@
 use std::{collections::HashMap, ops::Add};
 
+use interval::SumsetEpsilonAdditiveAproximation;
+
 use crate::helpers::reduce_multiplicity;
 
 pub mod additive;
@@ -12,7 +14,7 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
     let eps_div_eps_prim = (epsilon / eps_prim).ceil() as u64;
     let epsilon = eps_div_eps_prim as f64 * eps_prim;
     let eps_inv = (1.0 / epsilon).ceil() as u64;
-    let _eps_prim_inv = eps_inv * eps_div_eps_prim;
+    let eps_prim_inv = eps_inv * eps_div_eps_prim;
     let _epsilon = 1.0 / (eps_inv as f64);
     let sigma: u64 = input.iter().sum();
     let _t = sigma / 2;
@@ -57,6 +59,26 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
 
     dbg!(&partition);
 
+    let eps_inv_for_approx = eps_prim_inv * 100;
+
+    dbg!(eps_inv_for_approx, eps_prim_inv, eps_div_eps_prim);
+
+    partition.iter_mut().for_each(|(_, v)| {
+        for &i in &*v {
+            assert!(z_range_start <= i && i < z_range_start * 2)
+        }
+        let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
+        dbg!(&v);
+        let approx = SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
+            .approximate(&scaled)
+            .into_iter()
+            .map(|x| x / eps_div_eps_prim)
+            .collect::<Vec<_>>();
+        *v = approx;
+    });
+
+    dbg!(&partition);
+
     todo!()
 }
 
@@ -77,6 +99,7 @@ impl ElementApproximation {
             cur *= 2;
         }
         let z = element / cur;
+        assert!(range_start <= z && z < range_end);
         ElementApproximation { k, z }
     }
 }
@@ -85,9 +108,11 @@ impl Add for ElementApproximation {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        let k = self.k + other.k;
-        let z = self.z + other.z;
-        ElementApproximation { k, z }
+        assert!(self.z == other.z && self.k == other.k);
+        ElementApproximation {
+            k: self.k + 1,
+            z: self.z,
+        }
     }
 }
 
@@ -103,5 +128,5 @@ fn test_approximation() {
         1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
     ];
     let epsilon = 0.1;
-    let _result = approximate_sumset(&input, epsilon);
+    let _result = approximate_sumset(&input.repeat(1), epsilon);
 }
