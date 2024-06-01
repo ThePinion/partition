@@ -8,9 +8,12 @@ edition = "2021"
 [dependencies]
 rustfft = "6.2.0"
 
+[dev-dependencies]
+proptest = "1.4.0"
+
 [lib]
-path = "src/lib.rs"   
+path = "src/lib.rs"
 
 [[bin]]
-name = "partition" 
-path = "src/main.rs"  
+name = "partition"
+path = "src/main.rs"

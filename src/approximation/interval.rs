@@ -29,7 +29,7 @@ impl SumsetIntervalApproximation {
                 x
             )
         }
-        self.approximate_recursive(set, dbg!(delta))
+        self.approximate_recursive(set, delta)
     }
     fn approximate_recursive(&self, a: &[u64], delta: f64) -> Vec<u64> {
         if a.len() <= 1 {
@@ -40,7 +40,6 @@ impl SumsetIntervalApproximation {
         let (left, right) = a.split_at(pivot);
         let left_approximation = self.approximate_recursive(left, delta);
         let right_approximation = self.approximate_recursive(right, delta);
-        dbg!(&left_approximation, &right_approximation);
         let merger = MultiplicativeBoundedMerger::new(
             self.start,
             self.start,
