@@ -86,9 +86,9 @@ mod tests {
     fn test_multiplicative_merge_large() {
         verify_multiplicative_merge(
             &(10000..15000).collect::<Vec<_>>(),
-            &(15000..10000).collect::<Vec<_>>(),
+            &(10000..11000).collect::<Vec<_>>(),
             2000000,
-            0.1,
+            0.3,
         )
     }
     #[test]

@@ -76,7 +76,6 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
             }
             let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
             dbg!(&v);
-            
 
             SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
                 .approximate(&scaled)
@@ -152,10 +151,22 @@ impl From<ElementApproximation> for u64 {
 #[test]
 fn test_approximation() {
     use crate::helpers::test::{naive_sumset, verify_approximation};
-    let input = [1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5]
+    let input = [
+        1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
+    ]
     .repeat(1);
     let epsilon = 0.01;
     let approximation = approximate_sumset(&input, epsilon);
     let additive_error = (epsilon * input.iter().sum::<u64>() as f64) as u64 / 50;
     verify_approximation(&approximation, &naive_sumset(&input), 0.0, additive_error);
+}
+
+#[test]
+fn test_approximation_large() {
+    let input = [
+        1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
+    ]
+    .repeat(10);
+    let epsilon = 0.01;
+    let _approximation = approximate_sumset(&input, epsilon);
 }
