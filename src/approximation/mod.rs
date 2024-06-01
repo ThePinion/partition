@@ -66,7 +66,7 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
 
     dbg!(eps_inv_for_approx, eps_prim_inv, eps_div_eps_prim);
 
-    let base_2 = (eps_prim * sigma as f64 / 100 as f64).ceil() as u64;
+    let base_2 = (eps_prim * sigma as f64 / 100_f64).ceil() as u64;
 
     let a_js = partition
         .into_iter()
@@ -76,14 +76,14 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
             }
             let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
             dbg!(&v);
-            let approx = SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
+            
+
+            SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
                 .approximate(&scaled)
                 .into_iter()
                 .map(|x| x / eps_div_eps_prim * 2_u64.pow(k))
                 .map(|x| x / base_2)
-                .collect::<Vec<_>>();
-
-            approx
+                .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
@@ -98,7 +98,7 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
 }
 
 pub fn merge_approximations(a_js: &[Vec<u64>]) -> Vec<u64> {
-    if a_js.len() == 0 {
+    if a_js.is_empty() {
         return vec![];
     } else if a_js.len() == 1 {
         return a_js[0].clone();
@@ -106,7 +106,7 @@ pub fn merge_approximations(a_js: &[Vec<u64>]) -> Vec<u64> {
     let (left, right) = a_js.split_at(a_js.len() / 2);
     let (left, right) = (merge_approximations(left), merge_approximations(right));
 
-    vec![subset_sum(&left, &right), left, right].concat()
+    [subset_sum(&left, &right), left, right].concat()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -145,16 +145,14 @@ impl Add for ElementApproximation {
 
 impl From<ElementApproximation> for u64 {
     fn from(val: ElementApproximation) -> Self {
-        val.z * 2u64.pow(val.k as u32)
+        val.z * 2u64.pow(val.k)
     }
 }
 
 #[test]
 fn test_approximation() {
     use crate::helpers::test::{naive_sumset, verify_approximation};
-    let input = vec![
-        1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
-    ]
+    let input = [1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5]
     .repeat(1);
     let epsilon = 0.01;
     let approximation = approximate_sumset(&input, epsilon);

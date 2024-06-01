@@ -137,9 +137,9 @@ mod tests {
     fn test_additive_merge_large() {
         verify_additive_merge(
             &(10000..15000).collect::<Vec<_>>(),
-            &(15000..10000).collect::<Vec<_>>(),
+            &(10000..15000).collect::<Vec<_>>(),
             2000000,
-            100,
+            2000,
         )
     }
     #[test]
