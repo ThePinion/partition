@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     characteristic::{Characteristic, CharacteristicTrait as _},
     fft::FFT,
@@ -11,6 +13,9 @@ pub fn subset_sum(a: &[u64], b: &[u64]) -> Vec<u64> {
 }
 
 pub fn bounded_subset_sum(a: &[u64], b: &[u64], bound: usize) -> Vec<u64> {
+    if a.len() * b.len() < 1000 {
+        return naive_sumset_sum(a, b);
+    }
     let encoder = Characteristic::with_size_1d(bound);
     let characteristic =
         FFT::new(bound).convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
@@ -37,10 +42,33 @@ pub fn bounded_subset_sum_2d(
     x_size: usize,
     y_size: usize,
 ) -> Vec<(u64, u64)> {
+    if a.len() * b.len() < 1000 {
+        return naive_sumset_sum_2d(a, b);
+    }
     let encoder = Characteristic::with_size_2d(x_size, y_size);
     let characteristic = FFT::new(encoder.fft_size())
         .convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
     encoder.decode(&characteristic)
+}
+
+fn naive_sumset_sum(a: &[u64], b: &[u64]) -> Vec<u64> {
+    let mut result = HashSet::new();
+    for x in a {
+        for y in b {
+            result.insert(x + y);
+        }
+    }
+    result.into_iter().collect()
+}
+
+fn naive_sumset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
+    let mut result = HashSet::new();
+    for x in a {
+        for y in b {
+            result.insert((x.0 + y.0, x.1 + y.1));
+        }
+    }
+    result.into_iter().collect()
 }
 
 #[cfg(test)]

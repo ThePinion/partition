@@ -1,14 +1,17 @@
 use std::{collections::HashMap, ops::Add};
 
-use interval::SumsetEpsilonAdditiveAproximation;
+use crate::{helpers::reduce_multiplicity, subset_sum::subset_sum};
 
-use crate::helpers::reduce_multiplicity;
-
-pub mod additive;
+pub mod additive_merge;
 pub mod interval;
-pub mod multiplicative;
+pub mod multiplicative_merge;
+
+pub use additive_merge::AdditiveBoundedMerger;
+pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximation};
+pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
 pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
+    let epsilon = epsilon / 2f64;
     let n = input.len();
     let eps_prim = epsilon / ((n as f64 / epsilon).log2() + 1f64);
     let eps_div_eps_prim = (epsilon / eps_prim).ceil() as u64;
@@ -45,7 +48,7 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
         .collect::<Vec<_>>();
 
     let z_set_prim = reduce_multiplicity(&z_set);
-    let mut partition: HashMap<(u64, bool), Vec<u64>> = HashMap::new();
+    let mut partition: HashMap<(u32, bool), Vec<u64>> = HashMap::new();
 
     for (el, &mult) in z_set_prim.iter() {
         assert!(mult <= 2);
@@ -63,28 +66,52 @@ pub fn approximate_sumset(input: &[u64], epsilon: f64) -> Vec<u64> {
 
     dbg!(eps_inv_for_approx, eps_prim_inv, eps_div_eps_prim);
 
-    partition.iter_mut().for_each(|(_, v)| {
-        for &i in &*v {
-            assert!(z_range_start <= i && i < z_range_start * 2)
-        }
-        let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
-        dbg!(&v);
-        let approx = SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
-            .approximate(&scaled)
-            .into_iter()
-            .map(|x| x / eps_div_eps_prim)
-            .collect::<Vec<_>>();
-        *v = approx;
-    });
+    let base_2 = (eps_prim * sigma as f64 / 100 as f64).ceil() as u64;
 
-    dbg!(&partition);
+    let a_js = partition
+        .into_iter()
+        .map(|((k, _), v)| {
+            for &i in &*v {
+                assert!(z_range_start <= i && i < z_range_start * 2)
+            }
+            let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
+            dbg!(&v);
+            let approx = SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
+                .approximate(&scaled)
+                .into_iter()
+                .map(|x| x / eps_div_eps_prim * 2_u64.pow(k))
+                .map(|x| x / base_2)
+                .collect::<Vec<_>>();
 
-    todo!()
+            approx
+        })
+        .collect::<Vec<_>>();
+
+    let mut merged = merge_approximations(&a_js);
+
+    merged.sort();
+
+    for el in &mut merged {
+        *el = *el * base_2 / scale * base;
+    }
+    merged
+}
+
+pub fn merge_approximations(a_js: &[Vec<u64>]) -> Vec<u64> {
+    if a_js.len() == 0 {
+        return vec![];
+    } else if a_js.len() == 1 {
+        return a_js[0].clone();
+    }
+    let (left, right) = a_js.split_at(a_js.len() / 2);
+    let (left, right) = (merge_approximations(left), merge_approximations(right));
+
+    vec![subset_sum(&left, &right), left, right].concat()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct ElementApproximation {
-    k: u64,
+    k: u32,
     z: u64,
 }
 
@@ -124,9 +151,13 @@ impl From<ElementApproximation> for u64 {
 
 #[test]
 fn test_approximation() {
+    use crate::helpers::test::{naive_sumset, verify_approximation};
     let input = vec![
         1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
-    ];
-    let epsilon = 0.1;
-    let _result = approximate_sumset(&input.repeat(1), epsilon);
+    ]
+    .repeat(1);
+    let epsilon = 0.01;
+    let approximation = approximate_sumset(&input, epsilon);
+    let additive_error = (epsilon * input.iter().sum::<u64>() as f64) as u64 / 50;
+    verify_approximation(&approximation, &naive_sumset(&input), 0.0, additive_error);
 }
