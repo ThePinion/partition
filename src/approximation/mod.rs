@@ -13,8 +13,14 @@ pub use additive_merge::AdditiveBoundedMerger;
 pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximation};
 pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
-pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
-    let input: &[u64] = &(input.iter().copied().map(u64::from).collect::<Vec<u64>>());
+pub fn approximate_sumset(input: &[u16], epsilon: f64) -> Vec<u64> {
+    let input = input.iter().copied().map(u64::from).collect::<Vec<u64>>();
+    if input.is_empty() {
+        return vec![0];
+    }
+    if input.len() == 1 {
+        return vec![input[0], 0];
+    }
     let epsilon = epsilon;
     let n = input.len();
     let eps_prim = epsilon / ((n as f64 / epsilon).log2() + 1f64);
@@ -23,7 +29,7 @@ pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
     let eps_inv = (1.0 / epsilon).ceil() as u64;
     let eps_prim_inv = eps_inv * eps_div_eps_prim;
     let _epsilon = 1.0 / (eps_inv as f64);
-    dbg!(1);
+    let eps_prim = 1.0 / (eps_prim_inv as f64);
     let sigma: u64 = input.iter().sum();
     let _t = sigma / 2;
 
@@ -35,7 +41,6 @@ pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
         .collect::<Vec<_>>();
     let scale = (100 * eps_inv).div_ceil(*y_set.iter().min().unwrap());
     let y_set = y_set.into_iter().map(|x| x * scale).collect::<Vec<_>>();
-    dbg!(1);
 
     let sigma = sigma * scale;
     let _t = sigma * 2;
@@ -49,7 +54,6 @@ pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
 
     let z_set_prim = reduce_multiplicity(&z_set);
     let mut partition: HashMap<(u32, bool), Vec<u64>> = HashMap::new();
-    dbg!(1);
 
     for (el, &mult) in z_set_prim.iter() {
         assert!(mult <= 2);
@@ -64,7 +68,6 @@ pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
     let eps_inv_for_approx = eps_prim_inv * 100;
 
     let base_2 = (eps_prim * sigma as f64 / 100_f64).ceil() as u64;
-    dbg!(2);
 
     let a_js = partition
         .into_iter()
@@ -77,21 +80,24 @@ pub fn approximate_sumset(input: &[u32], epsilon: f64) -> Vec<u64> {
             SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
                 .approximate(&scaled)
                 .into_iter()
-                .map(|x| x / eps_div_eps_prim * 2_u64.pow(k))
+                .map(|x| x * 2_u64.pow(k) / eps_div_eps_prim)
                 .map(|x| x / base_2)
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
     let mut merged = merge_approximations(&a_js);
-    dbg!(3);
 
     merged.sort();
 
     for el in &mut merged {
         *el = *el * base_2 / scale * base;
     }
-    dbg!(4);
+
+    if !merged.contains(&0) {
+        merged.push(0);
+    }
+
     merged
 }
 
