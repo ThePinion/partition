@@ -153,8 +153,7 @@ fn test_approximation() {
     use crate::helpers::test::{naive_sumset, verify_approximation};
     let input = [
         1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
-    ]
-    .repeat(1);
+    ].to_vec();
     let epsilon = 0.01;
     let approximation = approximate_sumset(&input, epsilon);
     let additive_error = (epsilon * input.iter().sum::<u64>() as f64) as u64 / 50;

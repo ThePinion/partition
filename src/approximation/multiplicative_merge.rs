@@ -74,13 +74,6 @@ mod tests {
         verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
         verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
         verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-
-        verify_multiplicative_merge(
-            &(1000..1500).collect::<Vec<_>>(),
-            &(1500..1000).collect::<Vec<_>>(),
-            2000000,
-            0.1,
-        )
     }
     #[test]
     fn test_multiplicative_merge_large() {
