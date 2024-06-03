@@ -8,7 +8,11 @@ fn verify_unrestricted_approximation(input: Vec<u16>, epsilon: f64) {
         (epsilon * input.iter().copied().map(u64::from).sum::<u64>() as f64) as u64 / 4;
     verify_approximation(
         &approximation,
-        &naive_sumset(&input.iter().copied().map(u64::from).collect::<Vec<u64>>()),
+        &[
+            naive_sumset(&input.iter().copied().map(u64::from).collect::<Vec<u64>>()),
+            vec![0],
+        ]
+        .concat(),
         0.0,
         additive_error,
     );
