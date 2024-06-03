@@ -1,0 +1,73 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{fancyhdr}
+
+% Page geometry
+\geometry{a4paper, margin=1in}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\rightmark}
+\fancyfoot[C]{\thepage}
+
+% Listings settings
+\definecolor{codegray}{gray}{0.9}
+\lstset{
+  backgroundcolor=\color{codegray},
+  basicstyle=\ttfamily,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=false,
+  showspaces=false,
+  showstringspaces=false
+}
+
+% Document
+\begin{document}
+
+% Title Page
+\input{chapters/titlepage}
+
+% Abstract
+\input{chapters/abstract}
+
+% Table of Contents
+\tableofcontents
+
+% List of Figures and Tables
+\listoffigures
+\listoftables
+
+% Chapters
+\input{chapters/introduction}
+\input{chapters/literature_review}
+\input{chapters/methodology}
+\input{chapters/implementation}
+\input{chapters/results}
+\input{chapters/discussion}
+\input{chapters/conclusion}
+
+% References
+\input{chapters/references}
+
+% Appendices
+\appendix
+\input{chapters/appendix_a}
+\input{chapters/appendix_b}
+
+\end{document}
