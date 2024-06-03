@@ -15,5 +15,5 @@ Very efficient implementation of the approximation algorithm solving the [partit
 
 2. **Compile the Document:**
    ```bash
-   docker run --rm -v $(pwd)/paper:/data blang/latex latexmk -pdf /data/main.tex
+   docker run --rm -v $(pwd)/paper:/data blang/latex latexmk -pdf -outdir=compiled /data/main.tex
    ```
