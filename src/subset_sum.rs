@@ -42,6 +42,7 @@ pub fn bounded_subset_sum_2d<T: Convoluter>(
     x_size: usize,
     y_size: usize,
 ) -> Vec<(u64, u64)> {
+    println!("2D");
     if a.len() * b.len() < 1000 {
         return naive_sumset_sum_2d(a, b);
     }
