@@ -1,17 +1,21 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, marker::PhantomData};
 
-use crate::helpers::{ceil_div, PowerOfTwoIterator};
+use crate::{
+    fft::FFTConvoluter,
+    helpers::{ceil_div, PowerOfTwoIterator},
+};
 
 use super::AdditiveBoundedMerger;
 
-pub struct MultiplicativeBoundedMerger {
+pub struct MultiplicativeBoundedMerger<T: FFTConvoluter> {
     start: u64,
     length: u64,
     delta: f64,
     t: u64,
+    _phantom: PhantomData<T>,
 }
 
-impl MultiplicativeBoundedMerger {
+impl<T: FFTConvoluter> MultiplicativeBoundedMerger<T> {
     pub fn new(start: u64, length: u64, delta: f64, t: u64) -> Self {
         assert!(length <= start);
         assert!(start <= t);
@@ -20,6 +24,7 @@ impl MultiplicativeBoundedMerger {
             length,
             delta,
             t,
+            _phantom: PhantomData,
         }
     }
     pub fn merge(&self, a: &[u64], b: &[u64]) -> Vec<u64> {
@@ -35,7 +40,8 @@ impl MultiplicativeBoundedMerger {
     }
     fn merge_interval(&self, a: &[u64], b: &[u64], r: u64) -> Vec<u64> {
         let additive_delta = (self.delta * r as f64).ceil() as u64;
-        let merger = AdditiveBoundedMerger::new(self.start, self.length, additive_delta, 6 * r);
+        let merger =
+            AdditiveBoundedMerger::<T>::new(self.start, self.length, additive_delta, 6 * r);
         merger
             .merge(a, b)
             .into_iter()
@@ -46,14 +52,14 @@ impl MultiplicativeBoundedMerger {
 
 #[cfg(test)]
 mod tests {
-    use crate::helpers::test::verify_approximation;
+    use crate::{fft::complex::ComplexFFT, helpers::test::verify_approximation};
 
     use super::*;
 
-    fn verify_multiplicative_merge(a: &[u64], b: &[u64], t: u64, delta: f64) {
+    fn verify_multiplicative_merge<T: FFTConvoluter>(a: &[u64], b: &[u64], t: u64, delta: f64) {
         let start = a.iter().chain(b.iter()).min().copied().unwrap_or(0);
         let end = a.iter().chain(b.iter()).max().copied().unwrap_or(0);
-        let merger = MultiplicativeBoundedMerger::new(start, end - start, delta, t);
+        let merger = MultiplicativeBoundedMerger::<T>::new(start, end - start, delta, t);
         let merged = merger.merge(a, b);
         let mut expected = vec![];
         for i in a {
@@ -68,16 +74,16 @@ mod tests {
 
     #[test]
     fn test_multiplicative_merge() {
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
-        verify_multiplicative_merge(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
     }
     #[test]
     fn test_multiplicative_merge_large() {
-        verify_multiplicative_merge(
+        verify_multiplicative_merge::<ComplexFFT>(
             &(10000..15000).collect::<Vec<_>>(),
             &(10000..11000).collect::<Vec<_>>(),
             2000000,
@@ -86,7 +92,7 @@ mod tests {
     }
     #[test]
     fn test_multiplicative_merge_large_barely_approximate() {
-        verify_multiplicative_merge(
+        verify_multiplicative_merge::<ComplexFFT>(
             &(1500..1800).collect::<Vec<_>>(),
             &(1000..1500).collect::<Vec<_>>(),
             3000,
@@ -95,8 +101,8 @@ mod tests {
     }
     #[test]
     fn test_multiplicative_merge_small() {
-        verify_multiplicative_merge(&[], &[], 25, 0.1);
-        verify_multiplicative_merge(&[1], &[], 25, 0.1);
-        verify_multiplicative_merge(&[1], &[1], 25, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[], &[], 25, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[1], &[], 25, 0.1);
+        verify_multiplicative_merge::<ComplexFFT>(&[1], &[1], 25, 0.1);
     }
 }

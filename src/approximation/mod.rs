@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Add};
 
-use crate::{helpers::reduce_multiplicity, subset_sum::subset_sum};
+use crate::{fft::FFTConvoluter, helpers::reduce_multiplicity, subset_sum::subset_sum};
 
 pub mod additive_merge;
 pub mod interval;
@@ -13,7 +13,7 @@ pub use additive_merge::AdditiveBoundedMerger;
 pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximation};
 pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
-pub fn approximate_sumset(input: &[u16], epsilon: f64) -> Vec<u64> {
+pub fn approximate_sumset<T: FFTConvoluter>(input: &[u16], epsilon: f64) -> Vec<u64> {
     let input = input.iter().copied().map(u64::from).collect::<Vec<u64>>();
     if input.is_empty() {
         return vec![0];
@@ -77,7 +77,7 @@ pub fn approximate_sumset(input: &[u16], epsilon: f64) -> Vec<u64> {
             }
             let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
 
-            SumsetEpsilonAdditiveAproximation::new(eps_inv_for_approx)
+            SumsetEpsilonAdditiveAproximation::new::<T>(eps_inv_for_approx)
                 .approximate(&scaled)
                 .into_iter()
                 .map(|x| x * 2_u64.pow(k) / eps_div_eps_prim)
@@ -86,7 +86,7 @@ pub fn approximate_sumset(input: &[u16], epsilon: f64) -> Vec<u64> {
         })
         .collect::<Vec<_>>();
 
-    let mut merged = merge_approximations(&a_js);
+    let mut merged = merge_approximations::<T>(&a_js);
 
     merged.sort();
 
@@ -101,16 +101,19 @@ pub fn approximate_sumset(input: &[u16], epsilon: f64) -> Vec<u64> {
     merged
 }
 
-pub fn merge_approximations(a_js: &[Vec<u64>]) -> Vec<u64> {
+pub fn merge_approximations<T: FFTConvoluter>(a_js: &[Vec<u64>]) -> Vec<u64> {
     if a_js.is_empty() {
         return vec![];
     } else if a_js.len() == 1 {
         return a_js[0].clone();
     }
     let (left, right) = a_js.split_at(a_js.len() / 2);
-    let (left, right) = (merge_approximations(left), merge_approximations(right));
+    let (left, right) = (
+        merge_approximations::<T>(left),
+        merge_approximations::<T>(right),
+    );
 
-    [subset_sum(&left, &right), left, right].concat()
+    [subset_sum::<T>(&left, &right), left, right].concat()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

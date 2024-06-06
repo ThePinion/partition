@@ -21,5 +21,6 @@ name = "partition"
 path = "src/main.rs"
 
 [features]
-
 use-proptest = ["proptest"]
+# default = ["use-proptest"]
+

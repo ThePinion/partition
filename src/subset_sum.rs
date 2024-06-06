@@ -2,27 +2,27 @@ use std::collections::HashSet;
 
 use crate::{
     characteristic::{Characteristic, CharacteristicTrait as _},
-    fft::FFT,
+    fft::FFTConvoluter,
 };
 
-pub fn subset_sum(a: &[u64], b: &[u64]) -> Vec<u64> {
+pub fn subset_sum<T: FFTConvoluter>(a: &[u64], b: &[u64]) -> Vec<u64> {
     let a_size = *a.iter().max().unwrap_or(&0u64) as usize;
     let b_size = *b.iter().max().unwrap_or(&0u64) as usize;
     let size = a_size + b_size + 1;
-    bounded_subset_sum(a, b, size)
+    bounded_subset_sum::<T>(a, b, size)
 }
 
-pub fn bounded_subset_sum(a: &[u64], b: &[u64], bound: usize) -> Vec<u64> {
+pub fn bounded_subset_sum<T: FFTConvoluter>(a: &[u64], b: &[u64], bound: usize) -> Vec<u64> {
     if a.len() * b.len() < 1000 {
         return naive_sumset_sum(a, b);
     }
     let encoder = Characteristic::with_size_1d(bound);
     let characteristic =
-        FFT::new(bound).convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
+        T::new(bound).convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
     encoder.decode(&characteristic)
 }
 
-pub fn subset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
+pub fn subset_sum_2d<T: FFTConvoluter>(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
     let (a_x_size, a_y_size) = a
         .iter()
         .fold((0, 0), |acc, f| (acc.0.max(f.0), acc.1.max(f.1)));
@@ -33,10 +33,10 @@ pub fn subset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
 
     let x_size = (a_x_size + b_x_size + 1) as usize;
     let y_size = (a_y_size + b_y_size + 1) as usize;
-    bounded_subset_sum_2d(a, b, x_size, y_size)
+    bounded_subset_sum_2d::<T>(a, b, x_size, y_size)
 }
 
-pub fn bounded_subset_sum_2d(
+pub fn bounded_subset_sum_2d<T: FFTConvoluter>(
     a: &[(u64, u64)],
     b: &[(u64, u64)],
     x_size: usize,
@@ -46,7 +46,7 @@ pub fn bounded_subset_sum_2d(
         return naive_sumset_sum_2d(a, b);
     }
     let encoder = Characteristic::with_size_2d(x_size, y_size);
-    let characteristic = FFT::new(encoder.fft_size())
+    let characteristic = T::new(encoder.fft_size())
         .convolute_characteristic_vecs(&encoder.encode(a), &encoder.encode(b));
     encoder.decode(&characteristic)
 }
@@ -75,10 +75,12 @@ fn naive_sumset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
 mod tests {
     use std::collections::HashSet;
 
+    use crate::fft::complex::ComplexFFT;
+
     use super::*;
 
-    fn test_1d(a: &[u64], b: &[u64]) {
-        let result = HashSet::from_iter(subset_sum(a, b));
+    fn test_1d<T: FFTConvoluter>(a: &[u64], b: &[u64]) {
+        let result = HashSet::from_iter(subset_sum::<T>(a, b));
         let mut expected = HashSet::new();
         for i in a {
             for j in b {
@@ -88,8 +90,8 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-    fn test_2d(a: &[(u64, u64)], b: &[(u64, u64)]) {
-        let result = HashSet::from_iter(subset_sum_2d(a, b));
+    fn test_2d<T: FFTConvoluter>(a: &[(u64, u64)], b: &[(u64, u64)]) {
+        let result = HashSet::from_iter(subset_sum_2d::<T>(a, b));
         let mut expected = HashSet::new();
         for (i, j) in a {
             for (k, l) in b {
@@ -101,12 +103,12 @@ mod tests {
 
     #[test]
     fn test_subset_sum() {
-        test_1d(&[1, 2], &[1, 100]);
-        test_1d(&[1, 2], &[]);
-        test_1d(&[], &[1, 100]);
-        test_1d(&[], &[]);
-        test_1d(&[1, 2, 3], &[1, 2, 3]);
-        test_1d(
+        test_1d::<ComplexFFT>(&[1, 2], &[1, 100]);
+        test_1d::<ComplexFFT>(&[1, 2], &[]);
+        test_1d::<ComplexFFT>(&[], &[1, 100]);
+        test_1d::<ComplexFFT>(&[], &[]);
+        test_1d::<ComplexFFT>(&[1, 2, 3], &[1, 2, 3]);
+        test_1d::<ComplexFFT>(
             &(0..100).collect::<Vec<_>>(),
             &(2..20000).collect::<Vec<_>>(),
         )
@@ -114,11 +116,11 @@ mod tests {
 
     #[test]
     fn test_subset_sum_2d() {
-        test_2d(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]);
-        test_2d(&[(1, 0), (2, 1)], &[]);
-        test_2d(&[], &[(1, 10), (100, 20)]);
-        test_2d(&[], &[]);
-        test_2d(
+        test_2d::<ComplexFFT>(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]);
+        test_2d::<ComplexFFT>(&[(1, 0), (2, 1)], &[]);
+        test_2d::<ComplexFFT>(&[], &[(1, 10), (100, 20)]);
+        test_2d::<ComplexFFT>(&[], &[]);
+        test_2d::<ComplexFFT>(
             &(0..100).map(|a| (a, a + 6)).collect::<Vec<_>>(),
             &(200..300).map(|a| (a, a + 600)).collect::<Vec<_>>(),
         )

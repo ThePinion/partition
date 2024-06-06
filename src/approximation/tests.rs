@@ -1,9 +1,12 @@
-use crate::helpers::test::{naive_sumset, verify_approximation};
+use crate::{
+    fft::{complex::ComplexFFT, FFTConvoluter},
+    helpers::test::{naive_sumset, verify_approximation},
+};
 
 use super::approximate_sumset;
 
-fn verify_unrestricted_approximation(input: Vec<u16>, epsilon: f64) {
-    let approximation = approximate_sumset(&input, epsilon);
+fn verify_unrestricted_approximation<T: FFTConvoluter>(input: Vec<u16>, epsilon: f64) {
+    let approximation = approximate_sumset::<T>(&input, epsilon);
     let additive_error =
         (epsilon * input.iter().copied().map(u64::from).sum::<u64>() as f64) as u64 / 4;
     verify_approximation(
@@ -25,7 +28,7 @@ fn test_unrestricted_approximation() {
     ]
     .to_vec();
     let epsilon = 0.01;
-    verify_unrestricted_approximation(input, epsilon)
+    verify_unrestricted_approximation::<ComplexFFT>(input, epsilon)
 }
 
 #[test]
@@ -35,7 +38,7 @@ fn test_unrestricted_approximation_u32_max() {
         .map(|x| u16::MAX as u16 - x * x * x)
         .collect();
     let epsilon = 0.1;
-    verify_unrestricted_approximation(input, epsilon)
+    verify_unrestricted_approximation::<ComplexFFT>(input, epsilon)
 }
 
 #[test]
@@ -45,7 +48,7 @@ fn test_unrestricted_approximation_large() {
     ]
     .repeat(100);
     let epsilon = 0.01;
-    let approximation = approximate_sumset(&input, epsilon);
+    let approximation = approximate_sumset::<ComplexFFT>(&input, epsilon);
     assert!(approximation.len() >= input.len())
 }
 
@@ -69,7 +72,7 @@ mod proptest_tests {
             let epsilon = 1.0 / eps_inv as f64;
             let additive_error =
                 (epsilon * sigma as f64) as u64 / 4;
-            let approximation = approximate_sumset(&[a, b].concat(), epsilon);
+            let approximation = approximate_sumset::<ComplexFFT>(&[a, b].concat(), epsilon);
             verify_element_in_approximation(&approximation, expected_element, 0.0, additive_error);
         }
     }
