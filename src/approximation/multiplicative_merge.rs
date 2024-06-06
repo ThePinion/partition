@@ -52,7 +52,10 @@ impl<T: Convoluter> MultiplicativeBoundedMerger<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{fft::FFT, helpers::test::verify_approximation};
+    use crate::{
+        fft::{FFT, NTT},
+        helpers::test::verify_approximation,
+    };
 
     use super::*;
 
@@ -73,7 +76,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multiplicative_merge() {
+    fn test_multiplicative_merge_fft() {
         verify_multiplicative_merge::<FFT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
         verify_multiplicative_merge::<FFT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
         verify_multiplicative_merge::<FFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
@@ -82,7 +85,7 @@ mod tests {
         verify_multiplicative_merge::<FFT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
     }
     #[test]
-    fn test_multiplicative_merge_large() {
+    fn test_multiplicative_merge_large_fft() {
         verify_multiplicative_merge::<FFT>(
             &(10000..15000).collect::<Vec<_>>(),
             &(10000..11000).collect::<Vec<_>>(),
@@ -91,7 +94,7 @@ mod tests {
         )
     }
     #[test]
-    fn test_multiplicative_merge_large_barely_approximate() {
+    fn test_multiplicative_merge_large_barely_approximate_fft() {
         verify_multiplicative_merge::<FFT>(
             &(1500..1800).collect::<Vec<_>>(),
             &(1000..1500).collect::<Vec<_>>(),
@@ -100,9 +103,43 @@ mod tests {
         );
     }
     #[test]
-    fn test_multiplicative_merge_small() {
+    fn test_multiplicative_merge_small_fft() {
         verify_multiplicative_merge::<FFT>(&[], &[], 25, 0.1);
         verify_multiplicative_merge::<FFT>(&[1], &[], 25, 0.1);
         verify_multiplicative_merge::<FFT>(&[1], &[1], 25, 0.1);
+    }
+
+    #[test]
+    fn test_multiplicative_merge_ntt() {
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 25, 0.1);
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+        verify_multiplicative_merge::<NTT>(&[11, 12, 13], &[14, 15, 16], 100, 0.1);
+    }
+    #[test]
+    fn test_multiplicative_merge_large_ntt() {
+        verify_multiplicative_merge::<NTT>(
+            &(10000..15000).collect::<Vec<_>>(),
+            &(10000..11000).collect::<Vec<_>>(),
+            2000000,
+            0.3,
+        )
+    }
+    #[test]
+    fn test_multiplicative_merge_large_barely_approximate_ntt() {
+        verify_multiplicative_merge::<NTT>(
+            &(1500..1800).collect::<Vec<_>>(),
+            &(1000..1500).collect::<Vec<_>>(),
+            3000,
+            0.00001,
+        );
+    }
+    #[test]
+    fn test_multiplicative_merge_small_ntt() {
+        verify_multiplicative_merge::<NTT>(&[], &[], 25, 0.1);
+        verify_multiplicative_merge::<NTT>(&[1], &[], 25, 0.1);
+        verify_multiplicative_merge::<NTT>(&[1], &[1], 25, 0.1);
     }
 }

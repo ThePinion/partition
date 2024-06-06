@@ -67,7 +67,7 @@ impl<T: Convoluter> SumsetIntervalApproximation<T> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        fft::FFT,
+        fft::{FFT, NTT},
         helpers::{self, test::naive_sumset},
     };
 
@@ -96,7 +96,7 @@ mod tests {
     }
 
     #[test]
-    fn test_interval_approximation() {
+    fn test_interval_approximation_fft() {
         verify_interval_approximation::<FFT>(vec![5, 6, 7, 8, 9, 10], 0.1);
         verify_interval_approximation::<FFT>(vec![5, 6, 7, 8, 9, 10], 0.01);
         verify_interval_approximation::<FFT>(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.001);
@@ -104,7 +104,7 @@ mod tests {
         verify_interval_approximation::<FFT>(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.5);
     }
     #[test]
-    fn test_interval_approximation_large() {
+    fn test_interval_approximation_large_fft() {
         verify_interval_approximation::<FFT>(
             vec![
                 200, 120, 130, 140, 150, 160, 170, 180, 190, 210, 121, 123, 124, 125, 126, 126,
@@ -117,8 +117,34 @@ mod tests {
         );
     }
     #[test]
-    fn test_interval_epsilon_approximation() {
+    fn test_interval_epsilon_approximation_fft() {
         verify_epsilon_additive_approximation::<FFT>(vec![6, 7, 8, 9, 10, 11], 6);
         verify_epsilon_additive_approximation::<FFT>((12..24).collect(), 12);
+    }
+    #[test]
+    fn test_interval_approximation_ntt() {
+        verify_interval_approximation::<NTT>(vec![5, 6, 7, 8, 9, 10], 0.1);
+        verify_interval_approximation::<NTT>(vec![5, 6, 7, 8, 9, 10], 0.01);
+        verify_interval_approximation::<NTT>(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.001);
+        verify_interval_approximation::<NTT>(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.0001);
+        verify_interval_approximation::<NTT>(vec![10, 12, 13, 14, 15, 16, 17, 18, 19, 11], 0.5);
+    }
+    #[test]
+    fn test_interval_approximation_large_ntt() {
+        verify_interval_approximation::<NTT>(
+            vec![
+                200, 120, 130, 140, 150, 160, 170, 180, 190, 210, 121, 123, 124, 125, 126, 126,
+                126, 126, 126, 126, 126, 126,
+            ]
+            .into_iter()
+            .map(|x| x * 1000000000)
+            .collect(),
+            0.1,
+        );
+    }
+    #[test]
+    fn test_interval_epsilon_approximation_ntt() {
+        verify_epsilon_additive_approximation::<NTT>(vec![6, 7, 8, 9, 10, 11], 6);
+        verify_epsilon_additive_approximation::<NTT>((12..24).collect(), 12);
     }
 }

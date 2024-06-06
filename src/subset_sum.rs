@@ -75,7 +75,7 @@ fn naive_sumset_sum_2d(a: &[(u64, u64)], b: &[(u64, u64)]) -> Vec<(u64, u64)> {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::fft::FFT;
+    use crate::fft::{FFT, NTT};
 
     use super::*;
 
@@ -102,7 +102,7 @@ mod tests {
     }
 
     #[test]
-    fn test_subset_sum() {
+    fn test_subset_sum_fft() {
         test_1d::<FFT>(&[1, 2], &[1, 100]);
         test_1d::<FFT>(&[1, 2], &[]);
         test_1d::<FFT>(&[], &[1, 100]);
@@ -115,12 +115,37 @@ mod tests {
     }
 
     #[test]
-    fn test_subset_sum_2d() {
+    fn test_subset_sum_ntt() {
+        test_1d::<NTT>(&[1, 2], &[1, 100]);
+        test_1d::<NTT>(&[1, 2], &[]);
+        test_1d::<NTT>(&[], &[1, 100]);
+        test_1d::<NTT>(&[], &[]);
+        test_1d::<NTT>(&[1, 2, 3], &[1, 2, 3]);
+        test_1d::<NTT>(
+            &(0..100).collect::<Vec<_>>(),
+            &(2..20000).collect::<Vec<_>>(),
+        )
+    }
+
+    #[test]
+    fn test_subset_sum_2d_fft() {
         test_2d::<FFT>(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]);
         test_2d::<FFT>(&[(1, 0), (2, 1)], &[]);
         test_2d::<FFT>(&[], &[(1, 10), (100, 20)]);
         test_2d::<FFT>(&[], &[]);
         test_2d::<FFT>(
+            &(0..100).map(|a| (a, a + 6)).collect::<Vec<_>>(),
+            &(200..300).map(|a| (a, a + 600)).collect::<Vec<_>>(),
+        )
+    }
+
+    #[test]
+    fn test_subset_sum_2d_ntt() {
+        test_2d::<NTT>(&[(1, 0), (2, 1)], &[(1, 10), (100, 20)]);
+        test_2d::<NTT>(&[(1, 0), (2, 1)], &[]);
+        test_2d::<NTT>(&[], &[(1, 10), (100, 20)]);
+        test_2d::<NTT>(&[], &[]);
+        test_2d::<NTT>(
             &(0..100).map(|a| (a, a + 6)).collect::<Vec<_>>(),
             &(200..300).map(|a| (a, a + 600)).collect::<Vec<_>>(),
         )

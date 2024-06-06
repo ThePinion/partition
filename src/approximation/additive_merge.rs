@@ -104,7 +104,7 @@ fn fft2d_complexity(start: u64, size: u64, t: u64, delta: u64) -> u64 {
 mod tests {
     use test::verify_approximation;
 
-    use crate::fft::FFT;
+    use crate::fft::{FFT, NTT};
 
     use super::*;
 
@@ -125,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn test_additive_merge() {
+    fn test_additive_merge_fft() {
         verify_additive_merge::<FFT>(&[10, 12, 13], &[14, 15, 16], 10, 2);
         verify_additive_merge::<FFT>(&[10, 12, 13], &[14, 15, 16], 10, 1);
         verify_additive_merge::<FFT>(&[10, 12, 13], &[14, 15, 16], 100, 3);
@@ -141,7 +141,7 @@ mod tests {
         )
     }
     #[test]
-    fn test_additive_merge_large() {
+    fn test_additive_merge_large_fft() {
         verify_additive_merge::<FFT>(
             &(10000..15000).collect::<Vec<_>>(),
             &(10000..15000).collect::<Vec<_>>(),
@@ -150,8 +150,43 @@ mod tests {
         )
     }
     #[test]
-    fn test_additive_merge_large_barely_approximate() {
+    fn test_additive_merge_large_barely_approximate_fft() {
         verify_additive_merge::<FFT>(
+            &(1500..1800).collect::<Vec<_>>(),
+            &(1000..1500).collect::<Vec<_>>(),
+            3000,
+            1,
+        );
+    }
+
+    #[test]
+    fn test_additive_merge_ntt() {
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 10, 2);
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 10, 1);
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 100, 3);
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 100, 4);
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 100, 5);
+        verify_additive_merge::<NTT>(&[10, 12, 13], &[14, 15, 16], 100, 6);
+
+        verify_additive_merge::<NTT>(
+            &(1000..1500).collect::<Vec<_>>(),
+            &(1000..1500).collect::<Vec<_>>(),
+            2000000,
+            100,
+        )
+    }
+    #[test]
+    fn test_additive_merge_large_ntt() {
+        verify_additive_merge::<NTT>(
+            &(10000..15000).collect::<Vec<_>>(),
+            &(10000..15000).collect::<Vec<_>>(),
+            2000000,
+            2000,
+        )
+    }
+    #[test]
+    fn test_additive_merge_large_barely_approximate_ntt() {
+        verify_additive_merge::<NTT>(
             &(1500..1800).collect::<Vec<_>>(),
             &(1000..1500).collect::<Vec<_>>(),
             3000,

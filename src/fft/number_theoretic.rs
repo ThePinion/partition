@@ -10,7 +10,7 @@ pub struct NumberTheoreticTransform {
 }
 
 // const PRIME: u64 = 9807971461541688691;
-const PRIME: u64 = 1073479681;
+const PRIME: u64 = 2013265921;
 
 impl Convoluter for NumberTheoreticTransform {
     fn new(size: usize) -> Self {

@@ -1,5 +1,5 @@
 use crate::{
-    fft::{Convoluter, FFT},
+    fft::{Convoluter, FFT, NTT},
     helpers::test::{naive_sumset, verify_approximation},
 };
 
@@ -22,7 +22,7 @@ fn verify_unrestricted_approximation<T: Convoluter>(input: Vec<u16>, epsilon: f6
 }
 
 #[test]
-fn test_unrestricted_approximation() {
+fn test_unrestricted_approximation_fft() {
     let input = [
         1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
     ]
@@ -32,13 +32,33 @@ fn test_unrestricted_approximation() {
 }
 
 #[test]
-fn test_unrestricted_approximation_u32_max() {
+fn test_unrestricted_approximation_ntt() {
+    let input = [
+        1001, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000, 1001, 1002, 1003, 5,
+    ]
+    .to_vec();
+    let epsilon = 0.01;
+    verify_unrestricted_approximation::<NTT>(input, epsilon)
+}
+
+#[test]
+fn test_unrestricted_approximation_u32_max_fft() {
     let input = (0..10)
         .into_iter()
         .map(|x| u16::MAX as u16 - x * x * x)
         .collect();
     let epsilon = 0.1;
     verify_unrestricted_approximation::<FFT>(input, epsilon)
+}
+
+#[test]
+fn test_unrestricted_approximation_u32_max_ntt() {
+    let input = (0..10)
+        .into_iter()
+        .map(|x| u16::MAX as u16 - x * x * x)
+        .collect();
+    let epsilon = 0.1;
+    verify_unrestricted_approximation::<NTT>(input, epsilon)
 }
 
 #[test]
