@@ -111,7 +111,7 @@ mod tests {
     fn verify_additive_merge<T: Convoluter>(a: &[u64], b: &[u64], t: u64, delta: u64) {
         let start = a.iter().chain(b.iter()).min().copied().unwrap_or(0);
         let end = a.iter().chain(b.iter()).max().copied().unwrap_or(0);
-        let merger = AdditiveBoundedMerger::<FFT>::new(start, end - start, delta, t);
+        let merger = AdditiveBoundedMerger::<T>::new(start, end - start, delta, t);
         let merged = merger.merge(a, b);
         let mut expected = vec![];
         for i in a {

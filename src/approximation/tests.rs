@@ -43,20 +43,14 @@ fn test_unrestricted_approximation_ntt() {
 
 #[test]
 fn test_unrestricted_approximation_u32_max_fft() {
-    let input = (0..10)
-        .into_iter()
-        .map(|x| u16::MAX as u16 - x * x * x)
-        .collect();
+    let input = (0..10).map(|x| u16::MAX - x * x * x).collect();
     let epsilon = 0.1;
     verify_unrestricted_approximation::<FFT>(input, epsilon)
 }
 
 #[test]
 fn test_unrestricted_approximation_u32_max_ntt() {
-    let input = (0..10)
-        .into_iter()
-        .map(|x| u16::MAX as u16 - x * x * x)
-        .collect();
+    let input = (0..10).map(|x| u16::MAX - x * x * x).collect();
     let epsilon = 0.1;
     verify_unrestricted_approximation::<NTT>(input, epsilon)
 }
@@ -75,9 +69,9 @@ fn test_unrestricted_approximation_large() {
 #[cfg(feature = "use-proptest")]
 mod proptest_tests {
     use super::*;
+    use crate::fft::FFT;
     use crate::helpers::test::verify_element_in_approximation;
     use proptest::prelude::*;
-    use crate::fft::FFT;
 
     const MAX_LENGTH: usize = 100;
 

@@ -21,7 +21,6 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
     if input.len() == 1 {
         return vec![input[0], 0];
     }
-    let epsilon = epsilon;
     let n = input.len();
     let eps_prim = epsilon / ((n as f64 / epsilon).log2() + 1f64);
     let eps_div_eps_prim = (epsilon / eps_prim).ceil() as u64;
