@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::fft::Convoluter;
+use crate::{fft::Convoluter, helpers::naive_sumset};
 
 use super::MultiplicativeBoundedMerger;
 
@@ -41,8 +41,8 @@ impl<T: Convoluter> SumsetIntervalApproximation<T> {
         self.approximate_recursive(set, delta)
     }
     fn approximate_recursive(&self, a: &[u64], delta: f64) -> Vec<u64> {
-        if a.len() <= 1 {
-            return a.to_vec();
+        if a.len() <= 10 {
+            return naive_sumset(a);
         }
         let length = a.len();
         let pivot = length / 2;
@@ -68,7 +68,7 @@ impl<T: Convoluter> SumsetIntervalApproximation<T> {
 mod tests {
     use crate::{
         fft::{FFT, NTT},
-        helpers::{self, test::naive_sumset},
+        helpers::{self, naive_sumset},
     };
 
     use super::*;

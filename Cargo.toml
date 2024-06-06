@@ -9,6 +9,8 @@ edition = "2021"
 rustfft = "6.2.0"
 proptest = { version = "1.4.0", optional = true }
 concrete-ntt = {version = "0.1.2", features = ["nightly"]}
+clap = { version = "4.5.4", features = ["derive"] }
+rand = "0.8.5"
 
 [dev-dependencies]
 

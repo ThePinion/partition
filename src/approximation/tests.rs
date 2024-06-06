@@ -1,6 +1,6 @@
 use crate::{
     fft::{Convoluter, FFT, NTT},
-    helpers::test::{naive_sumset, verify_approximation},
+    helpers::{naive_sumset, test::verify_approximation},
 };
 
 use super::approximate_sumset;

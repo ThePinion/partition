@@ -14,6 +14,7 @@ pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximatio
 pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
 pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64> {
+    let start = std::time::Instant::now();
     let input = input.iter().copied().map(u64::from).collect::<Vec<u64>>();
     if input.is_empty() {
         return vec![0];
@@ -32,6 +33,8 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
     let sigma: u64 = input.iter().sum();
     let _t = sigma / 2;
 
+    dbg!(start.elapsed().as_millis());
+
     let base = (sigma as f64 / (100f64 * n as f64 * eps_inv as f64)).ceil() as u64;
     let y_set = input
         .iter()
@@ -40,6 +43,8 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
         .collect::<Vec<_>>();
     let scale = (100 * eps_inv).div_ceil(*y_set.iter().min().unwrap());
     let y_set = y_set.into_iter().map(|x| x * scale).collect::<Vec<_>>();
+
+    dbg!(start.elapsed().as_millis());
 
     let sigma = sigma * scale;
     let _t = sigma * 2;
@@ -50,6 +55,8 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
         .iter()
         .map(|&x| ElementApproximation::new(z_range_start, x))
         .collect::<Vec<_>>();
+
+        dbg!(start.elapsed().as_millis());
 
     let z_set_prim = reduce_multiplicity(&z_set);
     let mut partition: HashMap<(u32, bool), Vec<u64>> = HashMap::new();
@@ -67,27 +74,31 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
     let eps_inv_for_approx = eps_prim_inv * 100;
 
     let base_2 = (eps_prim * sigma as f64 / 100_f64).ceil() as u64;
+    dbg!(start.elapsed().as_millis());
 
     let a_js = partition
         .into_iter()
         .map(|((k, _), v)| {
+            let start = std::time::Instant::now();
             for &i in &*v {
                 assert!(z_range_start <= i && i < z_range_start * 2)
             }
             let scaled = v.iter().map(|&x| x * eps_div_eps_prim).collect::<Vec<_>>();
 
-            SumsetEpsilonAdditiveAproximation::new::<T>(eps_inv_for_approx)
+            let result = SumsetEpsilonAdditiveAproximation::new::<T>(eps_inv_for_approx)
                 .approximate(&scaled)
                 .into_iter()
                 .map(|x| x * 2_u64.pow(k) / eps_div_eps_prim)
                 .map(|x| x / base_2)
-                .collect::<Vec<_>>()
+                .collect::<Vec<_>>();
+            dbg!(k, start.elapsed().as_millis());
+            result
         })
         .collect::<Vec<_>>();
+    dbg!(start.elapsed().as_millis());
 
     let mut merged = merge_approximations::<T>(&a_js);
-
-    merged.sort();
+    dbg!(start.elapsed().as_millis());
 
     for el in &mut merged {
         *el = *el * base_2 / scale * base;
@@ -96,6 +107,8 @@ pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64
     if !merged.contains(&0) {
         merged.push(0);
     }
+
+    merged.sort();
 
     merged
 }

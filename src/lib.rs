@@ -22,7 +22,7 @@ pub fn approximate_partition<T: Convoluter>(input: &[u16], epsilon: f64) -> f64 
 
 #[cfg(test)]
 mod tests {
-    use crate::{helpers::test::naive_sumset, Convoluter, FFT, NTT};
+    use crate::{helpers::naive_sumset, Convoluter, FFT, NTT};
 
     fn validate_partition_approximation<T: Convoluter>(input: &[u16], epsilon: f64) {
         let approximation = super::approximate_partition::<T>(input, epsilon);
