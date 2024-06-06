@@ -77,6 +77,7 @@ mod proptest_tests {
     use super::*;
     use crate::helpers::test::verify_element_in_approximation;
     use proptest::prelude::*;
+    use crate::fft::FFT;
 
     const MAX_LENGTH: usize = 100;
 
@@ -92,7 +93,7 @@ mod proptest_tests {
             let epsilon = 1.0 / eps_inv as f64;
             let additive_error =
                 (epsilon * sigma as f64) as u64 / 4;
-            let approximation = approximate_sumset::<ComplexFFT>(&[a, b].concat(), epsilon);
+            let approximation = approximate_sumset::<FFT>(&[a, b].concat(), epsilon);
             verify_element_in_approximation(&approximation, expected_element, 0.0, additive_error);
         }
     }
