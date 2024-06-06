@@ -1,6 +1,6 @@
 use rustfft::{num_complex::Complex, FftPlanner};
 
-use super::FFTConvoluter;
+use super::Convoluter;
 
 pub struct ComplexFFT {
     size: usize,
@@ -9,7 +9,7 @@ pub struct ComplexFFT {
     planner: FftPlanner<f32>,
 }
 
-impl FFTConvoluter for ComplexFFT {
+impl Convoluter for ComplexFFT {
     fn new(size: usize) -> Self {
         ComplexFFT {
             size,
@@ -18,7 +18,7 @@ impl FFTConvoluter for ComplexFFT {
             planner: FftPlanner::new(),
         }
     }
-    fn convolute_characteristic_vecs(&mut self, a: &[bool], b: &[bool]) -> Vec<bool> {
+    fn convolute_characteristic_vecs(mut self, a: &[bool], b: &[bool]) -> Vec<bool> {
         for (i, val) in a.iter().enumerate() {
             self.points_a[i] = Complex::new(if *val { 1.0 } else { 0.0 }, 0f32);
         }

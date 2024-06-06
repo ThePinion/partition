@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Add};
 
-use crate::{fft::FFTConvoluter, helpers::reduce_multiplicity, subset_sum::subset_sum};
+use crate::{fft::Convoluter, helpers::reduce_multiplicity, subset_sum::subset_sum};
 
 pub mod additive_merge;
 pub mod interval;
@@ -13,7 +13,7 @@ pub use additive_merge::AdditiveBoundedMerger;
 pub use interval::{SumsetEpsilonAdditiveAproximation, SumsetIntervalApproximation};
 pub use multiplicative_merge::MultiplicativeBoundedMerger;
 
-pub fn approximate_sumset<T: FFTConvoluter>(input: &[u16], epsilon: f64) -> Vec<u64> {
+pub fn approximate_sumset<T: Convoluter>(input: &[u16], epsilon: f64) -> Vec<u64> {
     let input = input.iter().copied().map(u64::from).collect::<Vec<u64>>();
     if input.is_empty() {
         return vec![0];
@@ -101,7 +101,7 @@ pub fn approximate_sumset<T: FFTConvoluter>(input: &[u16], epsilon: f64) -> Vec<
     merged
 }
 
-pub fn merge_approximations<T: FFTConvoluter>(a_js: &[Vec<u64>]) -> Vec<u64> {
+pub fn merge_approximations<T: Convoluter>(a_js: &[Vec<u64>]) -> Vec<u64> {
     if a_js.is_empty() {
         return vec![];
     } else if a_js.len() == 1 {
