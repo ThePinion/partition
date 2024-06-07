@@ -1,0 +1,6 @@
+epsilon, input_length, convoluter, average_time
+0.5, 50, FFT, 56481046
+0.3333333333333333, 50, FFT, 108461743
+0.25, 50, FFT, 302655410
+0.2, 50, FFT, 249639695
+

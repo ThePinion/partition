@@ -41,9 +41,9 @@ enum Comands {
 
 #[derive(Args, Default)]
 struct BenchmarkOptions {
-    epsilon_range_start: f64,
-    epsilon_range_end: f64,
-    epsilon_range_step: f64,
+    epsilon_range_start: u64,
+    epsilon_range_end: u64,
+    epsilon_range_step: u64,
     input_length_range_start: usize,
     input_length_range_end: usize,
     input_length_range_step: usize,
@@ -53,7 +53,7 @@ struct BenchmarkOptions {
 }
 
 impl BenchmarkOptions {
-    pub fn epsilon_range(&self) -> StepRange<f64> {
+    pub fn epsilon_range(&self) -> StepRange<u64> {
         StepRange::new(
             self.epsilon_range_start,
             self.epsilon_range_end,
@@ -151,9 +151,10 @@ fn benchmark_subcommand(options: &BenchmarkOptions) -> Result<String, io::Error>
     use std::fmt::Write;
     let mut results = vec![];
     for epsilon in options.epsilon_range() {
+        let epsilon = 1f64 / epsilon as f64;
         for input_length in options.input_length_range() {
             let config = BenchmarkConfig {
-                epsilon: epsilon as f64,
+                epsilon: epsilon,
                 input_length,
                 convoluter: options.convoluter,
                 repetitions: options.repetitions,
