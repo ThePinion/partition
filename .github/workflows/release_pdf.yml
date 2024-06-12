@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - master
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: piniom/nspyc-pandoc
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Container and Generate PDF
-        run: docker run --rm -v ${{ github.workspace }}:/data blang/latex latexmk -pdf -outdir=compiled /data/main.tex -f
+        run: docker run --rm -v ${{ github.workspace }}/paper:/data blang/latex latexmk -pdf -outdir=compiled /data/main.tex -f
       - name: Extract release version
         id: extract_value
         run: |
@@ -30,4 +26,4 @@ jobs:
           prerelease: false
           automatic_release_tag: ${{ github.ref_name }}-${{ env.RELEASE_VERSION }}
           files: |
-            compiled/main.pdf
+            paper/compiled/main.pdf
