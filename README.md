@@ -1,6 +1,6 @@
 # PARTITION 
 
-Rust implementation of the _Partition_ problem. The crate can be used as a rust library or as a standalone CLI. 
+Rust implementation of the _Approximate Partition_ problem. The crate can be used as a rust library or as a standalone CLI. 
 
 ## PDF 
 The PDF with the description of the alghoritm can be downloaded from the `Releases` section of the repository under `Assets -> main.pdf`. 
