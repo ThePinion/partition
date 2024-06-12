@@ -1,0 +1,33 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - master
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: piniom/nspyc-pandoc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Container and Generate PDF
+        run: docker run --rm -v ${{ github.workspace }}:/data blang/latex latexmk -pdf -outdir=compiled /data/main.tex -f
+      - name: Extract release version
+        id: extract_value
+        run: |
+          RELEASE_VERSION=$(grep '/^version = ' Cargo.toml | awk '{print $NF}')
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN}}
+          prerelease: false
+          automatic_release_tag: ${{ github.ref_name }}-${{ env.RELEASE_VERSION }}
+          files: |
+            compiled/main.pdf
