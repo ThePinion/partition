@@ -10,6 +10,10 @@
 \usepackage{geometry}
 \usepackage{caption}
 \usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage[backend=bibtex,style=alphabetic]{biblatex} % Use biblatex with the alphabetic style
+\addbibresource{references.bib}
 
 % Page geometry
 \geometry{a4paper, margin=1in}
@@ -37,21 +41,20 @@
   showstringspaces=false
 }
 
-\newcommand{\Partition}{\textit{Partition}}
+\newcommand{\Partition}{\textit{Partition}\xspace}
+\newcommand{\Knapsack}{\textit{Knapsack}\xspace}
+\newcommand{\SubsetSum}{\textit{Subset-Sum}\xspace}
+\newcommand{\MultPart}{\textit{Multiway Partitioning}\xspace}
 \newcommand{\tildeO}{\tilde{O}}
-
+\newcommand{\ApxPartition}{\textit{Approximate Partition}\xspace}
 % Document
 \begin{document}
 
 % Title Page
 \input{titlepage}
 
-% Abstract
-\input{abstract}
-
 % Sections
-\section{Introduction}
-\input{sections/introduction}
+\input{sections/01_introduction}
 \section{Literature Review}
 \input{sections/literature_review}
 \section{Methodology}
@@ -65,15 +68,6 @@
 \section{Conclusion}
 \input{sections/conclusion}
 
-% References
-% \bibliographystyle{plain}
-\input{references}
-
-% Appendices
-% \appendix
-% \section{Appendix A}
-% \input{sections/appendix_a}
-% \section{Appendix B}
-% \input{sections/appendix_b}
+\printbibliography
 
 \end{document}

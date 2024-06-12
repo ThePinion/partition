@@ -1,0 +1,60 @@
+\section{Introduction}
+\subsection{Problem Statements}
+In it's simplest terms \Partition is the problem of selecting a subset of integers from a list such that the sum of the integers in the subset is as close as possible to half the sum of all the integers in the list. \Partition, due to its simple formulation, is a special case of the \MultPart, \SubsetSum, and in turn \Knapsack problems. 
+Below are the formal statements of these problems:
+
+\subsubsection{Reductions from \Knapsack}
+
+\paragraph{\Knapsack Problem:}
+In the Knapsack problem, the input is a list of \(n\) items \\ \((p_1, w_1), \ldots, (p_n, w_n) \in \mathbb{N} \times \mathbb{N}\) together with a knapsack capacity \(W \in \mathbb{N}\), and the optimal value is
+\[
+    \text{OPT} := \max_{J \subseteq [n]} \left\{ \sum_{j \in J} p_j \, \bigg| \, \sum_{j \in J} w_j \leq W \right\}.
+\]
+
+\paragraph{\textit{Subset-Sum} Problem:}
+The \SubsetSum is a special case of the \Knapsack problem where the weights are equal to the profits, i.e., \(w_i = p_i\) for all \(i \in [n]\). For the input list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\) and an integer \(W\), the optimal value is
+\[
+    \text{OPT} := \max_{J \subseteq [n]} \left\{ \sum_{j \in J} x_j \, \bigg| \, \sum_{j \in J} x_j \leq W \right\}.
+\]
+
+\paragraph{\Partition Problem:}
+The \Partition problem is a special case of the \SubsetSum problem where \(W\) is half the sum of the integers in the input list. For the input list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\), the optimal value is
+\[
+    \text{OPT} := \max_{J \subseteq [n]} \left\{ \sum_{j \in J} x_j \, \bigg| \, \sum_{j \in J} x_j \leq \frac{1}{2} \sum_{i \in [n]} x_i \right\}.
+\]
+
+\subsubsection{Reduction from \MultPart}
+\paragraph{\MultPart Problem:}
+The \MultPart problem is the problem of partitioning a list of \(n\) integers into \(k\) disjoint subsets such that the sum of the integers in each subset is as close as possible. The exact objective can be described in several ways:
+\begin{itemize}
+    \item Minimize the difference between the largest and the smallest of the sums.
+    \item Minimize the largest sum, or equivalently, maximize the smallest sum.
+\end{itemize}
+Although there are not equivalent in the general case, for \Partition they are. We will use the former formulation.
+Given a list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\) and an integer \(k\), find a partition \(\mathcal{P} = \{J_1, \ldots, J_k\} \subseteq 2^{[n]}\) such that the difference between the largest and smallest subset sums is minimized. Formally, the optimal value is:
+\[
+\text{OPT} := \min_{t \in \mathbb{N}} \left\{ t \mid \exists \, \mathcal{P} = \{J_1, \ldots, J_k\} \text{ :} \max_{i \in [k]} \sum_{j \in J_i} x_j - \min_{i \in [k]} \sum_{j \in J_i} x_j \leq t \right\}.
+\]
+\paragraph{\Partition Problem:}
+The \Partition problem is a special case of the \MultPart Problem where \(k = 2\). For the input list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\), the optimal value is
+\[
+    \text{OPT} := \max_{t \in \mathbb{N}} \left\{ t \mid \exists \, J \subseteq [n] \text{ :} \sum_{j \in J} x_j \le \frac{1}{2} \sum_{i \in [n]} x_i \right\}.
+\]
+
+\subsection{Approximation}
+In this paper, I implement an approximation algorithm for the \Partition problem described in \cite{deng}. This formulation states that the \textit{solution} may deviate from the \textit{optimal} by a factor not greater then \(\varepsilon\). Below is the formal definition.
+\subsection{\ApxPartition Problem:}
+Given a list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\) and an approximation factor \(0 < \varepsilon \le 1/2\), find a solution $\text{SOL}$ such that:
+\[
+    \text{OPT}(1-\varepsilon) \le \text{SOL} \le \text{OPT}
+\]
+where:
+\[
+    \text{OPT} := \max_{J \subseteq [n]} \left\{ \sum_{j \in J} x_j \, \bigg| \, \sum_{j \in J} x_j \leq \frac{1}{2} \sum_{i \in [n]} x_i \right\}.
+\]
+
+\subsection{Complexity}
+The algorithm described in \cite{deng} runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. $\tildeO$ denotes the \textit{soft-O} notation, that ignores polylogarythimc factors.
+
+
+
