@@ -1,0 +1,1 @@
+while inotifywait -r -e modify,create,delete --exclude 'compiled' .; do ./compile.sh; done

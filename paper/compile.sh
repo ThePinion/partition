@@ -1,0 +1,1 @@
+docker run --rm -v $(pwd):/data blang/latex latexmk -pdf -outdir=compiled /data/main.tex
