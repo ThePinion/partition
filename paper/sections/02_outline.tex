@@ -1,5 +1,5 @@
 \section{Alghoritm outline}
-The idea of the alhoritm relies on a simple fact that if we were able to obtain a precise enough approximation of the power set of the input list we would immediately be able to solve the \Partition problem. The idea is to start approximating small subsets and build our way by merging them. Eventually we will obatin the final approximation, hopefully without loosing to much precision. Let's first understand the concept of a \textit{set approximation}.
+The idea of the alhoritm relies on a simple fact that if we were able to obtain a precise enough approximation of the power set of the input list we would immediately be able to solve the \Partition problem. The idea is to start approximating subset sum sets of small subsets and build our way by merging them. Eventually we will obatin the final approximation, hopefully without loosing to much precision. Let's first understand the concept of a \textit{set approximation}.
 \subsection{Set approximation}
 The following is the \textit{Definition 2.3} from \cite{deng}. \\
 For integer sets \(A, B \subseteq \mathbb{N}\), and real numbers \(t, \Delta \in \mathbb{R}_{\geq 0}, \delta \in [0, 1)\), we say that \(A\) is a \((1 - \delta, \Delta)\) approximation of \(B\) up to \(t\), if
@@ -13,9 +13,16 @@ For the case of \(t = +\infty\), we simply omit the phrase “up to \(t\)”.
 \\ \\
 The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive approximation, and the \((1 - \delta, 0)\) approximation is referred to as a \((1 - \delta)\)-multiplicative approximation, or simply a \((1 - \delta)\) approximation.\\
 
-\subsection{Merging}
+\subsection{Subset Sum Set}
+The subset sum set of a set \(X \subseteq \mathbb{N}\) is defined as
+\[
+    S(X) := \left\{ \sum_{x \in J} x \mid J \subseteq X \right\}.
+\]
+
+\subsection{Merging Subset Sum Sets}
+
+In order to advance the approximation of the subset sum set of the input list, we need to merge the approximations of the subset sum sets of smaller subsets. The following proposition is a key to the algorithm.
 
 \paragraph{Proposition 2.4 in \cite{deng}} 
-The following simple lemma holds:
 
-For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\).
+For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\). Where \(X_1 \uplus X_2\) denotes the union of the two sets with repetitions.
