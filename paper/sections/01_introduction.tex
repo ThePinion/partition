@@ -53,6 +53,12 @@ where:
     \text{OPT} := \max_{J \subseteq [n]} \left\{ \sum_{j \in J} x_j \, \bigg| \, \sum_{j \in J} x_j \leq \frac{1}{2} \sum_{i \in [n]} x_i \right\}.
 \]
 
+% The subset sum set of a multiset \(X \subseteq \mathbb{N}\) is defined as
+% \[
+%     S(X) := \left\{ \sum_{x \in J} x \mid J \subseteq X \right\}.
+% \]
+
+
 \subsection{Complexity}
 The algorithm described in \cite{deng} runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. $\tildeO$ denotes the \textit{soft-O} notation, that ignores polylogarythimc factors.
 
