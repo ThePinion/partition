@@ -14,8 +14,9 @@ For a multiset \( X \subseteq \mathbb{N} \), let
 \] be the set of its subset sums up to \( t \). \\ 
 
 The idea of the alhoritm relies on a simple fact that if we were able to obtain a precise enough approximation of the set of subset sums of the input list we would immediately be able to solve the \Partition problem. The idea is to start approximating subset sum sets of small subsets and build our way by merging them. Eventually we will obatin the final approximation, hopefully without loosing to much precision. Let's first understand the concept of a \textit{set approximation}.
+
 \subsection{Set approximation}
-An aproximation of a set is another set that for every element in the original set there is an element in the approximation that is close enough to the original element and vice versa. \\ \\
+An aproximation of a set is another set that for every element in the original set there is an element in the approximation that is close enough (but not greater) to the original element and vice versa. \\ \\
 The following is the \textit{Definition 2.3} from \cite{deng}. \\
 For integer sets \(A, B \subseteq \mathbb{N}\), and real numbers \(t, \Delta \in \mathbb{R}_{\geq 0}, \delta \in [0, 1)\), we say that \(A\) is a \((1 - \delta, \Delta)\) approximation of \(B\) up to \(t\), if
 \begin{enumerate}
@@ -33,15 +34,31 @@ The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive a
 
 In order to advance the approximation of the subset sum set of the input list, we need to merge the approximations of the subset sum sets of smaller subsets. The following simple proposition is a key to the algorithm.
 
-\paragraph{Notation:}
+\paragraph{Multiset union:}
 \(X_1 \uplus X_2\) denotes the union of the two multisets with repetitions. For example, when \(X_1 = \{1, 2\}\) and \(X_2 = \{2, 3\}\) then \(X_1 \uplus X_2 = \{1, 2, 2, 3\}\).
+
+\paragraph{Sumset:}
+For two sets \( X, Y \), define their sumset \( X + Y = \{x + y : x \in X, y \in Y\} \).
 
 
 \subsubsection{\textit{Proposition 2.4} in \cite{deng}} 
 
-For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\). Where 
+For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\). \\
 
-For now let's not dive into how exactly the merge will be performed 
+\subsubsection{Convolution using FFT}
+
+Note that \((A_1 + A_2) \cap [0, t]\) can be computed in \(O(t \log t)\) time using the Fast Fourier Transform (FFT) algorithm. Since this lies at the heart of the algorithm we'd like to speed it up. If we round each element in \(A_1, A_2\) down to the nearest multiple of some integer $r$, then the time complexity can be reduced to \(O(t / r \log t / r)\). 
+By doing this rounding we've lost some additive precision (the loss is exactly $2(r-1)$).  For a reason that'll be evident shortly, we would like to transform this additive error into a multiplicative one. 
+
+\subsubsection{Transforming an additive error into a multiplicative error}
+To clarify, let's formulate the task. 
+\paragraph{\textit{Lemma 4.3} from \cite{deng}} Let \(\delta, \delta_0 \in (0, 1/2)\), and \(\ell, d, T \in \mathbb{N}^+\) such that \(d \leq \ell \leq T\).
+
+Let \(X_1, X_2 \subseteq \mathbb{N}^+ \cap [\ell, \ell + d]\) be two integer sets. Given \(A_1, A_2 \subseteq \mathbb{N}\) as input where for \(i \in \{1, 2\}\), \(A_i\) is an \((1 - \delta)\)-approximation of \(\mathcal{S}(X_i)\) up to \(T\), compute a set \(A \subseteq \mathbb{N}^+\) that \((1 - \delta - \delta_0)\)-approximates \(\mathcal{S}(X_1 \uplus X_2)\) up to \(T\). \\
+
+We will use the following observation.
+
+
 
 \subsection{Algorithm outline}
 Note that \( S(\{x\}) = \{0, x\}\). 
