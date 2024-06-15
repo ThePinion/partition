@@ -1,0 +1,23 @@
+\section{Implementation}
+
+\subsection{Repository}
+The source code as well as the LaTex code for this PDF is publically available in the GitHub repository: \url{https://github.com/piniom/partition}.
+
+\subsection{Programming Language}
+The Rust Programming Language was chosen for this project due to its known performance and safety characteristics \cite{rust_cpp}.
+
+\subsubsection{Outside dependencies}
+This project uses the following external libraries:
+\begin{itemize}
+    \item \texttt{rustfft\footnote{\url{https://github.com/ejmahler/RustFFT}}} - a Fast Fourier Transform library.
+    \item \texttt{concrete-ntt\footnote{\url{https://github.com/zama-ai/concrete-ntt}}} - a Discrete Fourier Transform library.
+    \item \texttt{clap\footnote{\url{https://github.com/clap-rs/clap}}} - a command line argument parser.
+\end{itemize}
+Additionally, the following libraries are used for testing:
+\begin{itemize}
+    \item \texttt{rand\footnote{\url{https://github.com/rust-random/rand}}} - a library for random number generation. 
+    \item \texttt{proptest\footnote{\url{https://github.com/proptest-rs/proptest}}} - a library for property-based testing.
+\end{itemize}
+
+\subsubsection{Rust Standard Library}
+Apart from the external libraries, the Rust Standard Library is used extensively.

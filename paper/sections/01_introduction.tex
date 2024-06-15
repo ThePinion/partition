@@ -60,7 +60,9 @@ where:
 
 
 \subsection{Complexity}
-The algorithm described in \cite{deng} runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. $\tildeO$ denotes the \textit{soft-O} notation, that ignores polylogarythimc factors.
+The algorithm described in \cite{deng} runs in \(\tildeO(n + \varepsilon^{-5/4})\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. My implementation runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) which is optimal when $n \le \tildeO(1/\varepsilon^{1/2})$. $\tildeO$ denotes the \textit{soft-O} notation, that ignores polylogarythimc factors.
+
+
 
 
 
