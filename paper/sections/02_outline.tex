@@ -1,4 +1,5 @@
 \section{Alghoritm outline}
+Below is a more intuitive explanation of the algorithm then the formal one found in the original paper. 
 
 \subsection{Sumsets}
 The algorithm revolves around taking the sum of elements in a set and finding all possible sums in the family of subsets of the set. Let's introduce these concpets, that will be used extensively in the following sections.
@@ -18,16 +19,16 @@ The idea of the alhoritm relies on a simple fact that if we were able to obtain 
 \subsection{Set approximation}
 An aproximation of a set is another set that for every element in the original set there is an element in the approximation that is close enough (but not greater) to the original element and vice versa. \\ \\
 The following is the \textit{Definition 2.3} from \cite{deng}. \\
-For integer sets \(A, B \subseteq \mathbb{N}\), and real numbers \(t, \Delta \in \mathbb{R}_{\geq 0}, \delta \in [0, 1)\), we say that \(A\) is a \((1 - \delta, \Delta)\) approximation of \(B\) up to \(t\), if
+\textit{For integer sets \(A, B \subseteq \mathbb{N}\), and real numbers \(t, \Delta \in \mathbb{R}_{\geq 0}, \delta \in [0, 1)\), we say that \(A\) is a \((1 - \delta, \Delta)\) approximation of \(B\) up to \(t\), if
 \begin{enumerate}
     \item for every \(b \in B \cap [0, t]\), there exists \(a \in A\) such that \((1 - \delta)b - \Delta \leq a \leq b\), and,
     \item for every \(a \in A\), there exists \(b \in B\) such that \((1 - \delta)b - \Delta \leq a \leq b\).
 \end{enumerate}
 One can assume \(A \subseteq \mathbb{N} \cap [0, t]\) in this case without loss of generality.
 \\ \\
-For the case of \(t = +\infty\), we simply omit the phrase “up to \(t\)”.
+For the case of \(t = +\infty\), we simply omit the phrase “up to \(t\)”.}
 \\ \\
-The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive approximation, and the \((1 - \delta, 0)\) approximation is referred to as a \((1 - \delta)\)-multiplicative approximation, or simply a \((1 - \delta)\) approximation.\\
+The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive approximation, and the \((1 - \delta, 0)\)-approximation is referred to as a \((1 - \delta)\)-multiplicative approximation, or simply a \((1 - \delta)\)-approximation.\\
 
 
 \subsection{Merging Subset Sum Sets}
@@ -35,30 +36,46 @@ The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive a
 In order to advance the approximation of the subset sum set of the input list, we need to merge the approximations of the subset sum sets of smaller subsets. The following simple proposition is a key to the algorithm.
 
 \paragraph{Multiset union:}
-\(X_1 \uplus X_2\) denotes the union of the two multisets with repetitions. For example, when \(X_1 = \{1, 2\}\) and \(X_2 = \{2, 3\}\) then \(X_1 \uplus X_2 = \{1, 2, 2, 3\}\).
+\textit{\(X_1 \uplus X_2\) denotes the union of the two multisets with repetitions. For example, when \(X_1 = \{1, 2\}\) and \(X_2 = \{2, 3\}\) then \(X_1 \uplus X_2 = \{1, 2, 2, 3\}\).}
 
 \paragraph{Sumset:}
-For two sets \( X, Y \), define their sumset \( X + Y = \{x + y : x \in X, y \in Y\} \).
+\textit{For two sets \( X, Y \), define their sumset \[ X + Y = \{x + y : x \in X, y \in Y\} \].}
 
 
 \subsubsection{\textit{Proposition 2.4} in \cite{deng}} 
 
-For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\). \\
+\textit{For \(i \in \{1, 2\}\), suppose \(A_i\) is a \((1 - \delta, \Delta_i)\) approximation of \(S(X_i)\) up to \(t\). Then, \((A_1 + A_2) \cap [0, t]\) is a \((1 - \delta, \Delta_1 + \Delta_2)\) approximation of \(S(X_1 \uplus X_2)\) up to \(t\).} \\
 
 \subsubsection{Convolution using FFT}
 
 Note that \((A_1 + A_2) \cap [0, t]\) can be computed in \(O(t \log t)\) time using the Fast Fourier Transform (FFT) algorithm. Since this lies at the heart of the algorithm we'd like to speed it up. If we round each element in \(A_1, A_2\) down to the nearest multiple of some integer $r$, then the time complexity can be reduced to \(O(t / r \log t / r)\). 
-By doing this rounding we've lost some additive precision (the loss is exactly $2(r-1)$).  For a reason that'll be evident shortly, we would like to transform this additive error into a multiplicative one. 
+By doing this rounding we've lost some additive precision (the loss is exactly $2(r-1)$).  Becouse in the end we want to compute a multiplicative approximation, we would like to transform this additive error into a multiplicative one. 
 
 \subsubsection{Transforming an additive error into a multiplicative error}
-To clarify, let's formulate the task. 
-\paragraph{\textit{Lemma 4.3} from \cite{deng}} Let \(\delta, \delta_0 \in (0, 1/2)\), and \(\ell, d, T \in \mathbb{N}^+\) such that \(d \leq \ell \leq T\).
+To clarify, let's formulate the task precisely.
+\paragraph{\textit{Lemma 4.3} from \cite{deng}} \textit{Let \(\delta, \delta_0 \in (0, 1/2)\), and \(\ell, d, T \in \mathbb{N}^+\) such that \(d \leq \ell \leq T\).}\\
+\textit{Let \(X_1, X_2 \subseteq \mathbb{N}^+ \cap [\ell, \ell + d]\) be two integer sets. Given \(A_1, A_2 \subseteq \mathbb{N}\) as input where for \(i \in \{1, 2\}\), \(A_i\) is an \((1 - \delta)\)-approximation of \(\mathcal{S}(X_i)\) up to \(T\), compute a set \(A \subseteq \mathbb{N}^+\) that \((1 - \delta - \delta_0)\)-approximates \(\mathcal{S}(X_1 \uplus X_2)\) up to \(T\).} \\
 
-Let \(X_1, X_2 \subseteq \mathbb{N}^+ \cap [\ell, \ell + d]\) be two integer sets. Given \(A_1, A_2 \subseteq \mathbb{N}\) as input where for \(i \in \{1, 2\}\), \(A_i\) is an \((1 - \delta)\)-approximation of \(\mathcal{S}(X_i)\) up to \(T\), compute a set \(A \subseteq \mathbb{N}^+\) that \((1 - \delta - \delta_0)\)-approximates \(\mathcal{S}(X_1 \uplus X_2)\) up to \(T\). \\
+Note, that when numbers from the set are bounded from below by some integer $r$, a \(\delta\)-additive approximation of the set is also a \((1 - \tfrac{\delta}{r})\)-multiplicative approximation. Note that as $r$ grows, the multiplicative error gets smaller.
 
-We will use the following observation.
+Initialize $A=\{0\}$. Let's iterate over the integer powers of $2$ and for each power $r$, such that: $l/6 \le r \le T$, compute the $\left\lceil \delta_0r \right\rceil$-additive  approximation of $A_1, A_2$ up to $6r$. Take that approximation $A_r$ and insert $A_r \cap [r, 6r]$ into the set $A$. It's clear that each additive error in each interval respects the desired multiplicative error and every element is approximated by at least one interval. In the end, $A$ will be a \((1 - \delta - \delta_0)\)-multiplicative approximation of the sumset of $X_1 \uplus X_2$ up to $t$. 
 
+We can drop the \textit{"up to $T$"} constraint by setting $T$ to the bound on the largest element of $X_1 \uplus X_2$: \[T = n  (l + d)\].
 
+\subsection{Computing the approximation of the subset sum set}
+\paragraph{\textit{Lemma 4.5} from \cite{deng}} \textit{Let \( \delta \in (0, 1/2) \) and \( \ell \in \mathbb{N}^+ \).}
 
-\subsection{Algorithm outline}
-Note that \( S(\{x\}) = \{0, x\}\). 
+\textit{Given an integer set \( X \subseteq \mathbb{N}^+ \cap [\ell, 2\ell] \) of \( n \) integers, compute a set \( A \subseteq \mathbb{N}^+ \) that \( (1 - \delta) \)-approximates \( S(X) \).}
+
+This can be done recursively by splitting the set into two halves and computing the approximation of each half. Then we merge the approximations using the method described above. The base case is when the set has only one element. In that case, the approximation is simply the set itself. We set the approximation factor at each of the $\left \lceil \log_2n \right \rceil$ levels to 
+\[\frac{\delta}{\left \lceil \log_2n \right \rceil} \]. 
+
+In this way, we obtain a $(1 - \delta)$-approximation of $S(X)$.
+
+\subsection{Reduction}
+All that is left is to reduce the \Partition problem to the \textit{Lemma 4.5}. This reduction is tedious and revolves almost entirely around the techniques already presented here. The main idea is taken from \cite{mucha} and the eaxct procedure is described in \cite{deng} in \textit{Appendix 4}.
+
+\subsection{Time complexity}
+Note that the most heavy lifting is the convolution using FFT. First speedup is achieved by rounding the elements of the approximations. This effectively reduces the degree of the convoluted polynomials. 
+
+The second observation is that most of the time we're dealing with integers that are close together, i.e in the range $[l, 2l]$ for some natural number $l$. This means that we can transform them with rounding to a two-dimensional form and perform a 2D-FFT faster.
