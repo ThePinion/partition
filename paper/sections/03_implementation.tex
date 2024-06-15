@@ -33,3 +33,33 @@ The command line application can be built using the \texttt{cargo} tool. The app
 \subsection{Tests}
 The project is tested extensively using both unit tests and property-based testing. When testing the set of subset sums approximation, for small inputs, where the exponetial complexity is acceptable, the output of the algorithm is compared to the output of the naive algorithm. For larger inputs, I test that the approximated set of subset sums contains some arbitrary subset sum.
 
+\subsection{Benchmarks}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{charts/epsilon.pdf}
+    \caption{Running time parametrized by $\varepsilon$ for different input lengths.}
+    \label{fig:chart}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{charts/input_length.pdf}
+    \caption{Running time of the approximation with $\varepsilon = 1/100$ compared to a naive algorithm on a logarithmic scale.}
+    \label{fig:chart}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{charts/fft_ntt.pdf}
+    \caption{Comparison of the running time of the approximation using the FFT and NTT as convolution backends with $\varepsilon = 1/25$  }
+    \label{fig:chart}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{charts/naive.pdf}
+    \caption{Running time of the approximation with $\varepsilon = 1/100$ compared to a naive algorithm on a logarithmic scale.}
+    \label{fig:chart}
+\end{figure}
+
+

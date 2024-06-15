@@ -11,6 +11,7 @@ use std::{
 use partition::fft::FFT;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
+use partition::helpers::naive_sumset;
 use partition::NTT;
 
 #[derive(Parser)]
@@ -37,6 +38,8 @@ enum Comands {
     },
     #[command(about = "Benchmark the program")]
     Benchmark(BenchmarkOptions),
+    #[command(about = "Benchmark the naive approach")]
+    NaiveBenchmark(NaiveBenchmarkOptions),
 }
 
 #[derive(Args, Default)]
@@ -60,6 +63,25 @@ impl BenchmarkOptions {
             self.epsilon_range_step,
         )
     }
+    pub fn input_length_range(&self) -> StepRange<usize> {
+        StepRange::new(
+            self.input_length_range_start,
+            self.input_length_range_end,
+            self.input_length_range_step,
+        )
+    }
+}
+
+#[derive(Args, Default)]
+struct NaiveBenchmarkOptions {
+    input_length_range_start: usize,
+    input_length_range_end: usize,
+    input_length_range_step: usize,
+    #[arg(short, long, default_value = "1")]
+    repetitions: usize,
+}
+
+impl NaiveBenchmarkOptions {
     pub fn input_length_range(&self) -> StepRange<usize> {
         StepRange::new(
             self.input_length_range_start,
@@ -124,6 +146,7 @@ fn main() -> io::Result<()> {
         Comands::Sumset { epsilon, input } => sumset_subcommand(input, epsilon),
         Comands::Partition { epsilon, input } => partition_subcommand(input, epsilon),
         Comands::Benchmark(options) => benchmark_subcommand(options),
+        Comands::NaiveBenchmark(options) => naive_benchmark_subcommand(options),
     }?;
     write_result(&cli.output, output)?;
     Ok(())
@@ -159,12 +182,31 @@ fn benchmark_subcommand(options: &BenchmarkOptions) -> Result<String, io::Error>
                 convoluter: options.convoluter,
                 repetitions: options.repetitions,
             };
-            let result = benchmark_single(config)?;
+            let result = config.benchmark_single()?;
             results.push(result);
         }
     }
     let mut output = String::new();
     writeln!(output, "{}", BenchmarkResult::HEADER).unwrap();
+    for result in results {
+        writeln!(output, "{}", result.to_cs_row()).unwrap();
+    }
+    Ok(output)
+}
+
+fn naive_benchmark_subcommand(options: &NaiveBenchmarkOptions) -> Result<String, io::Error> {
+    use std::fmt::Write;
+    let mut results = vec![];
+    for input_length in options.input_length_range() {
+        let config = NaiveBenchmarkConfig {
+            input_length,
+            repetitions: options.repetitions,
+        };
+        let result = config.benchmark_single()?;
+        results.push(result);
+    }
+    let mut output = String::new();
+    writeln!(output, "{}", NaiveBenchmarkResult::HEADER).unwrap();
     for result in results {
         writeln!(output, "{}", result.to_cs_row()).unwrap();
     }
@@ -186,6 +228,21 @@ impl BenchmarkConfig {
             convoluter: self.convoluter,
             times,
         }
+    }
+    fn benchmark_single(self) -> Result<BenchmarkResult, io::Error> {
+        let mut times = Vec::new();
+        for _ in 0..self.repetitions {
+            let input = (0..self.input_length)
+                .map(|_| rand::random::<u16>())
+                .collect::<Vec<_>>();
+            let start = std::time::Instant::now();
+            match self.convoluter {
+                Convoluter::FFT => partition::approximate_sumset::<FFT>(&input, self.epsilon),
+                Convoluter::NTT => partition::approximate_sumset::<NTT>(&input, self.epsilon),
+            };
+            times.push(start.elapsed().as_nanos());
+        }
+        Ok(self.result(times))
     }
 }
 
@@ -212,20 +269,45 @@ impl BenchmarkResult {
     }
 }
 
-fn benchmark_single(config: BenchmarkConfig) -> Result<BenchmarkResult, io::Error> {
-    let input = (0..config.input_length)
-        .map(|_| rand::random::<u16>())
-        .collect::<Vec<_>>();
-    let mut times = Vec::new();
-    for _ in 0..config.repetitions {
-        let start = std::time::Instant::now();
-        match config.convoluter {
-            Convoluter::FFT => partition::approximate_sumset::<FFT>(&input, config.epsilon),
-            Convoluter::NTT => partition::approximate_sumset::<NTT>(&input, config.epsilon),
-        };
-        times.push(start.elapsed().as_nanos());
+struct NaiveBenchmarkConfig {
+    input_length: usize,
+    repetitions: usize,
+}
+
+impl NaiveBenchmarkConfig {
+    pub fn result(&self, times: Vec<u128>) -> NaiveBenchmarkResult {
+        NaiveBenchmarkResult {
+            input_length: self.input_length,
+            times,
+        }
     }
-    Ok(config.result(times))
+    fn benchmark_single(self) -> Result<NaiveBenchmarkResult, io::Error> {
+        let mut times = Vec::new();
+        for _ in 0..self.repetitions {
+            let input = (0..self.input_length)
+            .map(|_| rand::random::<u16>())
+            .collect::<Vec<_>>();
+            let start = std::time::Instant::now();
+            naive_sumset(&input.iter().copied().map(u64::from).collect::<Vec<_>>());
+            times.push(start.elapsed().as_nanos());
+        }
+        Ok(self.result(times))
+    }
+}
+
+struct NaiveBenchmarkResult {
+    input_length: usize,
+    times: Vec<u128>,
+}
+
+impl NaiveBenchmarkResult {
+    fn average_time(&self) -> f64 {
+        self.times.iter().map(|x| *x as f64).sum::<f64>() / self.times.len() as f64
+    }
+    const HEADER: &'static str = "input_length,  average_time";
+    fn to_cs_row(&self) -> String {
+        format!("{}, {}", self.input_length, self.average_time())
+    }
 }
 
 fn buf_reader(input: &Option<PathBuf>) -> io::Result<Box<dyn BufRead>> {
