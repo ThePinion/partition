@@ -1,7 +1,8 @@
 \section{Implementation}
 
 \subsection{Repository}
-The source code as well as the LaTex code for this PDF is publically available in the GitHub repository: \url{https://github.com/piniom/partition}.
+The source code as well as the LaTex code for this PDF is publically available in the GitHub repository: \url{https://github.com/piniom/partition}. \\
+The LaTex source code is automatically compiled using GitHub Actions and the resulting PDF is available in the \texttt{releases} section of the repository.
 
 \subsection{Programming Language}
 The Rust Programming Language was chosen for this project due to its known performance and safety characteristics \cite{rust_cpp}.
@@ -21,3 +22,14 @@ Additionally, the following libraries are used for testing:
 
 \subsubsection{Rust Standard Library}
 Apart from the external libraries, the Rust Standard Library is used extensively.
+
+\subsection{Usage}
+The project is both a rust library and a command line application. 
+\subsubsection{Library}
+The library can be used by adding a git dependency to the \texttt{Cargo.toml} file of the project.
+\subsubsection{Command Line Application}
+The command line application can be built using the \texttt{cargo} tool. The application takes a list of integers and the approximation coefficient as input and outputs the approximate solution to the \Partition problem. The application can be run with the \texttt{--help} flag to see the available options.
+
+\subsection{Tests}
+The project is tested extensively using both unit tests and property-based testing. When testing the set of subset sums approximation, for small inputs, where the exponetial complexity is acceptable, the output of the algorithm is compared to the output of the naive algorithm. For larger inputs, I test that the approximated set of subset sums contains some arbitrary subset sum.
+
