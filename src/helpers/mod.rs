@@ -98,27 +98,28 @@ fn generate_sumset(vec: &[u64], index: usize, current_sum: u64, result: &mut Has
 
 pub fn dynamic_programing_partition(set: &[u64]) -> u64 {
     let sum = set.iter().sum::<u64>() / 2;
-    let mut dp = vec![vec![false; sum as usize + 1]; set.len() + 1];
+    let mut prev = vec![false; sum as usize + 1];
 
-    for i in 0..=set.len() {
-        dp[i][0] = true;
-    }
+    prev[0] = true;
 
     for i in 1..=sum as usize {
-        dp[0][i] = false;
+        prev[i] = false;
     }
+
+    let mut curr = vec![false; sum as usize + 1];
 
     for i in 1..=set.len() {
         for j in 1..=sum as usize {
             if j < set[i - 1] as usize {
-                dp[i][j] = dp[i - 1][j];
+                curr[j] = prev[j];
             } else {
-                dp[i][j] = dp[i - 1][j] || dp[i - 1][j - set[i - 1] as usize];
+                curr[j] = prev[j] || prev[j - set[i - 1] as usize];
             }
         }
+        std::mem::swap(&mut prev, &mut curr);
     }
 
-    return dp[set.len()]
+    return prev
         .iter()
         .enumerate()
         .filter_map(|(i, &x)| if x { Some(i as u64) } else { None })
