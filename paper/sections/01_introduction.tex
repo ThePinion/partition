@@ -1,7 +1,7 @@
 \section{Introduction}
 \subsection{Problem Statements}
 In it's simplest terms \Partition is the problem of selecting a subset of integers from a list such that the sum of the integers in the subset is as close as possible to half the sum of all the integers in the list. \Partition, due to its simple formulation, is a special case of the \MultPart, \SubsetSum, and in turn \Knapsack problems. 
-Below are the formal statements of these problems and \Partition defined in terms of its generalizations.
+Below are the formal statements of these problems and \Partition defined in terms of its generalisations.
 
 \subsubsection{Reductions from \Knapsack}
 
@@ -27,11 +27,11 @@ The \Partition problem is a special case of the \SubsetSum problem where \(W\) i
 \paragraph{\MultPart Problem:}
 The \MultPart problem is the problem of partitioning a list of \(n\) integers into \(k\) disjoint subsets such that the sum of the integers in each subset is as close as possible. The exact objective can be described in several ways:
 \begin{itemize}
-    \item Minimize the difference between the largest and the smallest of the sums.
-    \item Minimize the largest sum, or equivalently, maximize the smallest sum.
+    \item Minimise the difference between the largest and the smallest of the sums.
+    \item Minimise the largest sum, or equivalently, maximise the smallest sum.
 \end{itemize}
 Although there are not equivalent in the general case, for \Partition they are. We will use the former formulation.
-Given a list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\) and an integer \(k\), find a partition \(\mathcal{P} = \{J_1, \ldots, J_k\} \subseteq 2^{[n]}\) such that the difference between the largest and smallest subset sums is minimized. Formally, the optimal value is:
+Given a list of \(n\) integers \(x_1, \ldots, x_n \in \mathbb{N}\) and an integer \(k\), find a partition \(\mathcal{P} = \{J_1, \ldots, J_k\} \subseteq 2^{[n]}\) such that the difference between the largest and smallest subset sums is minimised. Formally, the optimal value is:
 \[
 \text{OPT} := \min_{t \in \mathbb{N}} \left\{ t \mid \exists \, \mathcal{P} = \{J_1, \ldots, J_k\} \text{ :} \max_{i \in [k]} \sum_{j \in J_i} x_j - \min_{i \in [k]} \sum_{j \in J_i} x_j \leq t \right\}.
 \]
@@ -60,7 +60,7 @@ where:
 
 
 \subsection{Complexity}
-The algorithm described in \cite{deng} runs in \(\tildeO(n + \varepsilon^{-5/4})\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. My implementation runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) which is optimal when $n \le \tildeO(1/\varepsilon^{1/2})$. $\tildeO$ denotes the \textit{soft-O} notation, that ignores polylogarythimc factors.
+The algorithm described in \cite{deng} runs in \(\tildeO(n + \varepsilon^{-5/4})\) time where \(n\) is the size of the input list and \(\varepsilon\) is the desired approximation factor. My implementation runs in \(\tildeO(n + \sqrt{n}/\varepsilon)\) which is optimal when $n \le \tildeO(1/\varepsilon^{1/2})$. $\tildeO$ denotes the \textit{soft-O} notation, that ignores poly-logarithmic factors.
 
 
 

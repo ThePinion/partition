@@ -1,12 +1,12 @@
-\section{Alghoritm outline}
+\section{Algorithm outline}
 Below is a more intuitive explanation of the algorithm then the formal one found in the original paper. 
 
-\subsection{Sumsets}
-The algorithm revolves around taking the sum of elements in a set and finding all possible sums in the family of subsets of the set. Let's introduce these concpets, that will be used extensively in the following sections.
-\subsubsection{Sum of elements in a multiset}
-For a multiset \( Y \subseteq \mathbb{N} \), let \( \Sigma(Y) = \sum_{y \in Y} y \) denote the sum of its elements (without removing duplicates).
+\subsection{Sum-sets}
+The algorithm revolves around taking the sum of elements in a set and finding all possible sums in the family of subsets of the set. Let's introduce these concepts, that will be used extensively in the following sections.
+\subsubsection{Sum of elements in a multi-set}
+For a multi-set \( Y \subseteq \mathbb{N} \), let \( \Sigma(Y) = \sum_{y \in Y} y \) denote the sum of its elements (without removing duplicates).
 \subsubsection {Set of subset sums}
-For a multiset \( X \subseteq \mathbb{N} \), let 
+For a multi-set \( X \subseteq \mathbb{N} \), let 
 \[ 
     \mathcal{S}(X) = \{ \Sigma(Y) : Y \subseteq X \} 
 \] be the set of its subset sums, and let 
@@ -14,10 +14,10 @@ For a multiset \( X \subseteq \mathbb{N} \), let
     \mathcal{S}(X; t) = \mathcal{S}(X) \cap [0, t] 
 \] be the set of its subset sums up to \( t \). \\ 
 
-The idea of the alhoritm relies on a simple fact that if we were able to obtain a precise enough approximation of the set of subset sums of the input list we would immediately be able to solve the \Partition problem. The idea is to start approximating subset sum sets of small subsets and build our way by merging them. Eventually we will obatin the final approximation, hopefully without loosing to much precision. Let's first understand the concept of a \textit{set approximation}.
+The idea of the algorithm relies on a simple fact that if we were able to obtain a precise enough approximation of the set of subset sums of the input list we would immediately be able to solve the \Partition problem. The idea is to start approximating subset sum sets of small subsets and build our way by merging them. Eventually we will obtain the final approximation, hopefully without loosing to much precision. Let's first understand the concept of a \textit{set approximation}.
 
 \subsection{Set approximation}
-An aproximation of a set is another set that for every element in the original set there is an element in the approximation that is close enough (but not greater) to the original element and vice versa. \\ \\
+An approximation of a set is another set that for every element in the original set there is an element in the approximation that is close enough (but not greater) to the original element and vice versa. \\ \\
 The following is the \textit{Definition 2.3} from \cite{deng}. \\
 \textit{For integer sets \(A, B \subseteq \mathbb{N}\), and real numbers \(t, \Delta \in \mathbb{R}_{\geq 0}, \delta \in [0, 1)\), we say that \(A\) is a \((1 - \delta, \Delta)\) approximation of \(B\) up to \(t\), if
 \begin{enumerate}
@@ -28,18 +28,18 @@ One can assume \(A \subseteq \mathbb{N} \cap [0, t]\) in this case without loss 
 \\ \\
 For the case of \(t = +\infty\), we simply omit the phrase “up to \(t\)”.}
 \\ \\
-The \((1, \Delta)\) approximation is also reffered to as a \(\Delta\)-additive approximation, and the \((1 - \delta, 0)\)-approximation is referred to as a \((1 - \delta)\)-multiplicative approximation, or simply a \((1 - \delta)\)-approximation.\\
+The \((1, \Delta)\) approximation is also referred to as a \(\Delta\)-additive approximation, and the \((1 - \delta, 0)\)-approximation is referred to as a \((1 - \delta)\)-multiplicative approximation, or simply a \((1 - \delta)\)-approximation.\\
 
 
 \subsection{Merging Subset Sum Sets}
 
 In order to advance the approximation of the subset sum set of the input list, we need to merge the approximations of the subset sum sets of smaller subsets. The following simple proposition is a key to the algorithm.
 
-\paragraph{Multiset union:}
-\textit{\(X_1 \uplus X_2\) denotes the union of the two multisets with repetitions. For example, when \(X_1 = \{1, 2\}\) and \(X_2 = \{2, 3\}\) then \(X_1 \uplus X_2 = \{1, 2, 2, 3\}\).}
+\paragraph{Multi-set union:}
+\textit{\(X_1 \uplus X_2\) denotes the union of the two maltiest with repetitions. For example, when \(X_1 = \{1, 2\}\) and \(X_2 = \{2, 3\}\) then \(X_1 \uplus X_2 = \{1, 2, 2, 3\}\).}
 
-\paragraph{Sumset:}
-\textit{For two sets \( X, Y \), define their sumset \[ X + Y = \{x + y : x \in X, y \in Y\} \].}
+\paragraph{Sum-set:}
+\textit{For two sets \( X, Y \), define their sum-set \[ X + Y = \{x + y : x \in X, y \in Y\} \].}
 
 
 \subsubsection{\textit{Proposition 2.4} in \cite{deng}} 
@@ -49,7 +49,7 @@ In order to advance the approximation of the subset sum set of the input list, w
 \subsubsection{Convolution using FFT}
 
 Note that \((A_1 + A_2) \cap [0, t]\) can be computed in \(O(t \log t)\) time using the Fast Fourier Transform (FFT) algorithm. Since this lies at the heart of the algorithm we'd like to speed it up. If we round each element in \(A_1, A_2\) down to the nearest multiple of some integer $r$, then the time complexity can be reduced to \(O(t / r \log t / r)\). 
-By doing this rounding we've lost some additive precision (the loss is exactly $2(r-1)$).  Becouse in the end we want to compute a multiplicative approximation, we would like to transform this additive error into a multiplicative one. 
+By doing this rounding we've lost some additive precision (the loss is exactly $2(r-1)$).  Because in the end we want to compute a multiplicative approximation, we would like to transform this additive error into a multiplicative one. 
 
 \subsubsection{Transforming an additive error into a multiplicative error}
 To clarify, let's formulate the task precisely.
@@ -58,7 +58,7 @@ To clarify, let's formulate the task precisely.
 
 Note, that when numbers from the set are bounded from below by some integer $r$, a \(\delta\)-additive approximation of the set is also a \((1 - \tfrac{\delta}{r})\)-multiplicative approximation. Note that as $r$ grows, the multiplicative error gets smaller.
 
-Initialize $A=\{0\}$. Let's iterate over the integer powers of $2$ and for each power $r$, such that: $l/6 \le r \le T$, compute the $\left\lceil \delta_0r \right\rceil$-additive  approximation of $A_1, A_2$ up to $6r$. Take that approximation $A_r$ and insert $A_r \cap [r, 6r]$ into the set $A$. It's clear that each additive error in each interval respects the desired multiplicative error and every element is approximated by at least one interval. In the end, $A$ will be a \((1 - \delta - \delta_0)\)-multiplicative approximation of the sumset of $X_1 \uplus X_2$ up to $t$. 
+Initialise $A=\{0\}$. Let's iterate over the integer powers of $2$ and for each power $r$, such that: $l/6 \le r \le T$, compute the $\left\lceil \delta_0r \right\rceil$-additive  approximation of $A_1, A_2$ up to $6r$. Take that approximation $A_r$ and insert $A_r \cap [r, 6r]$ into the set $A$. It's clear that each additive error in each interval respects the desired multiplicative error and every element is approximated by at least one interval. In the end, $A$ will be a \((1 - \delta - \delta_0)\)-multiplicative approximation of the sum-set of $X_1 \uplus X_2$ up to $t$. 
 
 We can drop the \textit{"up to $T$"} constraint by setting $T$ to the bound on the largest element of $X_1 \uplus X_2$: \[T = n  (l + d)\].
 
@@ -73,7 +73,7 @@ This can be done recursively by splitting the set into two halves and computing 
 In this way, we obtain a $(1 - \delta)$-approximation of $S(X)$.
 
 \subsection{Reduction}
-All that is left is to reduce the \Partition problem to the \textit{Lemma 4.5}. This reduction is tedious and revolves almost entirely around the techniques already presented here. The main idea is taken from \cite{mucha} and the eaxct procedure is described in \cite{deng} in \textit{Appendix 4}.
+All that is left is to reduce the \Partition problem to the \textit{Lemma 4.5}. This reduction is tedious and revolves almost entirely around the techniques already presented here. The main idea is taken from \cite{mucha} and the exact procedure is described in \cite{deng} in \textit{Appendix 4}.
 
 \subsection{Time complexity}
 Note that the most heavy lifting is the convolution using FFT. First speedup is achieved by rounding the elements of the approximations. This effectively reduces the degree of the convoluted polynomials. 
