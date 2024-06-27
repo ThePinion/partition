@@ -11,7 +11,7 @@ use std::{
 use partition::fft::FFT;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
-use partition::helpers::naive_sumset;
+use partition::helpers::{dynamic_programing_partition, naive_sumset};
 use partition::NTT;
 
 #[derive(Parser)]
@@ -40,6 +40,8 @@ enum Comands {
     Benchmark(BenchmarkOptions),
     #[command(about = "Benchmark the naive approach")]
     NaiveBenchmark(NaiveBenchmarkOptions),
+    #[command(about = "Benchmark the dynamic programing approach")]
+    DynamicProgramingBenchmark(DynamicProgramingBenchmarkOptions),
 }
 
 #[derive(Args, Default)]
@@ -87,6 +89,35 @@ impl NaiveBenchmarkOptions {
             self.input_length_range_start,
             self.input_length_range_end,
             self.input_length_range_step,
+        )
+    }
+}
+
+#[derive(Args, Default)]
+struct DynamicProgramingBenchmarkOptions {
+    input_length_range_start: usize,
+    input_length_range_end: usize,
+    input_length_range_step: usize,
+    max_value_range_start: usize,
+    max_value_range_end: usize,
+    max_value_range_step: usize,
+    #[arg(short, long, default_value = "1")]
+    repetitions: usize,
+}
+
+impl DynamicProgramingBenchmarkOptions {
+    pub fn input_length_range(&self) -> StepRange<usize> {
+        StepRange::new(
+            self.input_length_range_start,
+            self.input_length_range_end,
+            self.input_length_range_step,
+        )
+    }
+    pub fn max_value_range(&self) -> StepRange<usize> {
+        StepRange::new(
+            self.max_value_range_start,
+            self.max_value_range_end,
+            self.max_value_range_step,
         )
     }
 }
@@ -147,6 +178,9 @@ fn main() -> io::Result<()> {
         Comands::Partition { epsilon, input } => partition_subcommand(input, epsilon),
         Comands::Benchmark(options) => benchmark_subcommand(options),
         Comands::NaiveBenchmark(options) => naive_benchmark_subcommand(options),
+        Comands::DynamicProgramingBenchmark(options) => {
+            dynamic_programing_benchmark_subcommand(options)
+        }
     }?;
     write_result(&cli.output, output)?;
     Ok(())
@@ -207,6 +241,30 @@ fn naive_benchmark_subcommand(options: &NaiveBenchmarkOptions) -> Result<String,
     }
     let mut output = String::new();
     writeln!(output, "{}", NaiveBenchmarkResult::HEADER).unwrap();
+    for result in results {
+        writeln!(output, "{}", result.to_cs_row()).unwrap();
+    }
+    Ok(output)
+}
+
+fn dynamic_programing_benchmark_subcommand(
+    options: &DynamicProgramingBenchmarkOptions,
+) -> Result<String, io::Error> {
+    use std::fmt::Write;
+    let mut results = vec![];
+    for input_length in options.input_length_range() {
+        for max_value in options.max_value_range() {
+            let config = DynamicProgramingBenchmarkConfig {
+                input_length,
+                max_value: max_value as u64,
+                repetitions: options.repetitions,
+            };
+            let result = config.benchmark_single()?;
+            results.push(result);
+        }
+    }
+    let mut output = String::new();
+    writeln!(output, "{}", DynamicProgramingBenchmarkResult::HEADER).unwrap();
     for result in results {
         writeln!(output, "{}", result.to_cs_row()).unwrap();
     }
@@ -285,8 +343,8 @@ impl NaiveBenchmarkConfig {
         let mut times = Vec::new();
         for _ in 0..self.repetitions {
             let input = (0..self.input_length)
-            .map(|_| rand::random::<u16>())
-            .collect::<Vec<_>>();
+                .map(|_| rand::random::<u16>())
+                .collect::<Vec<_>>();
             let start = std::time::Instant::now();
             naive_sumset(&input.iter().copied().map(u64::from).collect::<Vec<_>>());
             times.push(start.elapsed().as_nanos());
@@ -307,6 +365,55 @@ impl NaiveBenchmarkResult {
     const HEADER: &'static str = "input_length,  average_time";
     fn to_cs_row(&self) -> String {
         format!("{}, {}", self.input_length, self.average_time())
+    }
+}
+
+struct DynamicProgramingBenchmarkConfig {
+    input_length: usize,
+    max_value: u64,
+    repetitions: usize,
+}
+
+impl DynamicProgramingBenchmarkConfig {
+    pub fn result(&self, times: Vec<u128>) -> DynamicProgramingBenchmarkResult {
+        DynamicProgramingBenchmarkResult {
+            input_length: self.input_length,
+            max_value: self.max_value,
+            times,
+        }
+    }
+    fn benchmark_single(self) -> Result<DynamicProgramingBenchmarkResult, io::Error> {
+        let mut times = Vec::new();
+        for _ in 0..self.repetitions {
+            let input = (0..self.input_length)
+                .map(|_| rand::random::<u64>() % self.max_value + 1)
+                .collect::<Vec<_>>();
+            let start = std::time::Instant::now();
+            dynamic_programing_partition(&input);
+            times.push(start.elapsed().as_nanos());
+        }
+        Ok(self.result(times))
+    }
+}
+
+struct DynamicProgramingBenchmarkResult {
+    input_length: usize,
+    max_value: u64,
+    times: Vec<u128>,
+}
+
+impl DynamicProgramingBenchmarkResult {
+    fn average_time(&self) -> f64 {
+        self.times.iter().map(|x| *x as f64).sum::<f64>() / self.times.len() as f64
+    }
+    const HEADER: &'static str = "input_length, max_value,  average_time";
+    fn to_cs_row(&self) -> String {
+        format!(
+            "{}, {}, {}",
+            self.input_length,
+            self.max_value,
+            self.average_time()
+        )
     }
 }
 
