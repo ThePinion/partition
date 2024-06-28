@@ -31,43 +31,41 @@ The library can be used by adding a git dependency to the \texttt{Cargo.toml} fi
 The command line application can be built using the \texttt{cargo} tool. The application takes a list of integers and the approximation coefficient as input and outputs the approximate solution to the \Partition problem. The application can be run with the \texttt{--help} flag to see the available options.
 
 \subsection{Tests}
-The project is tested extensively using both unit tests and property-based testing. When testing the set of subset sums approximation, for small inputs, where the exponential complexity is acceptable, the output of the algorithm is compared to the output of the naive algorithm. For larger inputs, I test that the approximated set of subset sums contains some arbitrary subset sum.
+The project is tested extensively using both unit tests and property-based testing. When testing the set of subset sums approximation, for small inputs, the output of the algorithm is compared to the output of the naive algorithm. For larger inputs, I test that the approximated set of subset sums contains some arbitrary subset sum.
 
 \subsection{Benchmarks}
+To test the performance of the algorithm, I have run several benchmarks using different input sizes and approximation coefficients. 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{charts/epsilon.pdf}
+    \includegraphics[width=0.8\linewidth]{charts/epsilon.pdf}
     \caption{Running time parameterised by $\varepsilon$ for different input lengths.}
-    \label{fig:chart}
+    \label{fig:epsilon}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{charts/input_length.pdf}
-    \caption{Running time for different input lengths, parameterised by $\varepsilon$.}
-    \label{fig:chart}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{charts/fft_ntt.pdf}
+    \includegraphics[width=0.8\linewidth]{charts/fft_ntt.pdf}
     \caption{Comparison of the running time of the approximation using the FFT and NTT as convolution backends with $\varepsilon = 1/25$  }
-    \label{fig:chart}
+    \label{fig:fft_ntt}
 \end{figure}
+
+Figure \ref{fig:epsilon} shows the impact of the approximation precision on the running time of the algorithm. We can see a linearithmic relationship between the inverse of the approximation coefficient and the running time.
+
+We also see the impact of the convolution backend on the running time in  Figure \ref{fig:fft_ntt}. The FFT backend is slightly faster than the NTT backend for all input sizes. 
+
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{charts/dp.pdf}
-    \caption{Running time of the approximation with $\varepsilon = 1/9$ compared to a dynamic-programming.}
-    \label{fig:chart}
+    \caption{Running time of the approximation with $\varepsilon = 1/8$ compared to a dynamic-programming algorithm.}
+    \label{fig:dp}
 \end{figure}
 
+\subsubsection{Comparison to other algorithms}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{charts/naive.pdf}
-    \caption{Running time of the approximation with $\varepsilon = 1/100$ compared to a naive algorithm on a logarithmic scale.}
-    \label{fig:chart}
-\end{figure}
+Finally, we compare the running time of the approximation to a dynamic-programming algorithm. The complexity of the well known \textit{DP} approach is $O (n \cdot s)$ where $s$ is the sum of all elements. In practical application the size of the elements is bounded. As a result the \textit{DP} algorithm can be thought of as having a quadratic complexity. Each element contributes to the number of all elements as well as the total sum. Thus the complexity can be bounded by $ O(n \cdot n \cdot \max{k}) = O(n^2 ) $. In the benchmark described in Figure \ref{fig:dp} the elements are chosen randomly from the range $[1, 2^{16}]$. The approximation factor $\varepsilon$ is equal to $1/8$. The \textit{DP} algorithm is faster than the approximation for small input sizes but the asymptotic complexity of the approximation is better which makes it faster for larger inputs.
+
+
+
 
 
