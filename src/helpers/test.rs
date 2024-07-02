@@ -38,4 +38,3 @@ pub fn verify_element_in_approximation(
         approximation
     );
 }
-

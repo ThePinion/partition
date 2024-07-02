@@ -28,7 +28,6 @@ impl<T: Convoluter> SumsetIntervalApproximation<T> {
         }
     }
     pub fn approximate(&self, set: &[u64]) -> Vec<u64> {
-        
         let n = set.len();
         let delta = self.delta / (n as f64).log2().ceil();
         for x in set {
@@ -49,10 +48,10 @@ impl<T: Convoluter> SumsetIntervalApproximation<T> {
         let length = a.len();
         let pivot = length / 2;
         let (left, right) = a.split_at(pivot);
-        
+
         let left_approximation = self.approximate_recursive(left, delta);
         let right_approximation = self.approximate_recursive(right, delta);
-        
+
         let merger = MultiplicativeBoundedMerger::<T>::new(
             self.start,
             self.start,

@@ -1,4 +1,3 @@
-use std::collections::BTreeSet;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{BufWriter, Write};
@@ -16,43 +15,54 @@ use partition::NTT;
 
 #[derive(Parser)]
 #[command(version, about)]
+/// Main entry point for the command-line interface, which parses the arguments and delegates to the appropriate subcommand.
 struct Cli {
+    /// Specifies the output file path. If not provided, the output will be printed to the standard output.
     #[arg(short, long, value_name = "FILE")]
     output: Option<PathBuf>,
+    /// The subcommand to execute.
     #[command(subcommand)]
     subcommand: Comands,
 }
+
 #[derive(Subcommand)]
+
 enum Comands {
-    #[command(about = "Approximate the sumset of a set of integers")]
-    Sumset {
-        epsilon: f64,
-        #[arg(short, long, value_name = "FILE")]
-        input: Option<PathBuf>,
-    },
-    #[command(about = "Approximate the partition of a set of integers")]
+    /// Approximates the partition of a set of integers using a specified approximation parameter.
     Partition {
+        /// The approximation parameter.
         epsilon: f64,
+        /// Specifies the input file path. If not provided, input is read from the standard input.
+        /// The input file or stdin should contain a list of u16 integers separated by whitespace.
         #[arg(short, long, value_name = "FILE")]
         input: Option<PathBuf>,
     },
-    #[command(about = "Benchmark the program")]
+    /// Runs a benchmark with specified options.
+    /// The benchmark is run on a randomly generated data for each combination of epsilon and input length specified.
     Benchmark(BenchmarkOptions),
-    #[command(about = "Benchmark the naive approach")]
+    /// Runs a benchmark using the naive approach
     NaiveBenchmark(NaiveBenchmarkOptions),
-    #[command(about = "Benchmark the dynamic programing approach")]
+    /// Runs a benchmark using the dynamic programming approach
     DynamicProgramingBenchmark(DynamicProgramingBenchmarkOptions),
 }
 
 #[derive(Args, Default)]
+/// Options for benchmarking, including ranges for epsilon and input lengths, and the convoluter type.
 struct BenchmarkOptions {
-    epsilon_range_start: u64,
-    epsilon_range_end: u64,
-    epsilon_range_step: u64,
+    /// The start of the inverse of epsilon values to use for the benchmark. Eg. start=2, end=6, step=2 will use epsilon values 1/2, 1/4, 1/6.
+    epsilon_inverse_range_start: u64,
+    /// The end of the range of the inverse of epsilon values.
+    epsilon_inverse_range_end: u64,
+    /// The step size for the above.
+    epsilon_inverse_range_step: u64,
+    /// The start range of input lengths to use for the benchmark. Eg. start=50, end=150, step=50 will use input lengths 50, 100, 150.
     input_length_range_start: usize,
+    /// The end of the range of input lengths.
     input_length_range_end: usize,
+    /// The step size for the above.
     input_length_range_step: usize,
     convoluter: Convoluter,
+    /// Number of repetitions for each benchmark.
     #[arg(short, long, default_value = "1")]
     repetitions: usize,
 }
@@ -60,9 +70,9 @@ struct BenchmarkOptions {
 impl BenchmarkOptions {
     pub fn epsilon_range(&self) -> StepRange<u64> {
         StepRange::new(
-            self.epsilon_range_start,
-            self.epsilon_range_end,
-            self.epsilon_range_step,
+            self.epsilon_inverse_range_start,
+            self.epsilon_inverse_range_end,
+            self.epsilon_inverse_range_step,
         )
     }
     pub fn input_length_range(&self) -> StepRange<usize> {
@@ -75,10 +85,15 @@ impl BenchmarkOptions {
 }
 
 #[derive(Args, Default)]
+/// Options for benchmarking the naive approach, including ranges for input lengths.
 struct NaiveBenchmarkOptions {
+    /// The start range of input lengths to use for the benchmark. Eg. start=50, end=150, step=50 will use input lengths 50, 100, 150.
     input_length_range_start: usize,
+    /// The end of the range of input lengths.
     input_length_range_end: usize,
+    /// The step size for the above.
     input_length_range_step: usize,
+    /// Number of repetitions for each benchmark.
     #[arg(short, long, default_value = "1")]
     repetitions: usize,
 }
@@ -94,13 +109,15 @@ impl NaiveBenchmarkOptions {
 }
 
 #[derive(Args, Default)]
+/// Options for benchmarking the dynamic programming approach, including ranges for input lengths and maximum values.
 struct DynamicProgramingBenchmarkOptions {
+    /// The start range of input lengths to use for the benchmark. Eg. start=50, end=150, step=50 will use input lengths 50, 100, 150.
     input_length_range_start: usize,
+    /// The end of the range of input lengths.
     input_length_range_end: usize,
+    /// The step size for the above.
     input_length_range_step: usize,
-    max_value_range_start: usize,
-    max_value_range_end: usize,
-    max_value_range_step: usize,
+    /// Number of repetitions for each benchmark. This can be used to get more accurate results.
     #[arg(short, long, default_value = "1")]
     repetitions: usize,
 }
@@ -111,13 +128,6 @@ impl DynamicProgramingBenchmarkOptions {
             self.input_length_range_start,
             self.input_length_range_end,
             self.input_length_range_step,
-        )
-    }
-    pub fn max_value_range(&self) -> StepRange<usize> {
-        StepRange::new(
-            self.max_value_range_start,
-            self.max_value_range_end,
-            self.max_value_range_step,
         )
     }
 }
@@ -156,9 +166,12 @@ where
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum, Default)]
+/// Enum representing the types of convoluters used in the benchmarking process.
 pub enum Convoluter {
     #[default]
+    /// Fast Fourier Transform
     FFT,
+    /// Number Theoretic Transform
     NTT,
 }
 
@@ -174,7 +187,6 @@ impl Display for Convoluter {
 fn main() -> io::Result<()> {
     let cli = Cli::parse();
     let output = match &cli.subcommand {
-        Comands::Sumset { epsilon, input } => sumset_subcommand(input, epsilon),
         Comands::Partition { epsilon, input } => partition_subcommand(input, epsilon),
         Comands::Benchmark(options) => benchmark_subcommand(options),
         Comands::NaiveBenchmark(options) => naive_benchmark_subcommand(options),
@@ -190,17 +202,6 @@ fn partition_subcommand(input: &Option<PathBuf>, epsilon: &f64) -> Result<String
     Ok(
         partition::approximate_partition::<FFT>(&parse_input_as_vec(buf_reader(input)?)?, *epsilon)
             .to_string(),
-    )
-}
-
-fn sumset_subcommand(input: &Option<PathBuf>, epsilon: &f64) -> Result<String, io::Error> {
-    Ok(
-        partition::approximate_sumset::<FFT>(&parse_input_as_vec(buf_reader(input)?)?, *epsilon)
-            .into_iter()
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .map(|x| format!("{x} "))
-            .collect::<String>(),
     )
 }
 
@@ -253,15 +254,13 @@ fn dynamic_programing_benchmark_subcommand(
     use std::fmt::Write;
     let mut results = vec![];
     for input_length in options.input_length_range() {
-        for max_value in options.max_value_range() {
-            let config = DynamicProgramingBenchmarkConfig {
-                input_length,
-                max_value: max_value as u64,
-                repetitions: options.repetitions,
-            };
-            let result = config.benchmark_single()?;
-            results.push(result);
-        }
+        let config = DynamicProgramingBenchmarkConfig {
+            input_length,
+            max_value: u16::MAX as u64,
+            repetitions: options.repetitions,
+        };
+        let result = config.benchmark_single()?;
+        results.push(result);
     }
     let mut output = String::new();
     writeln!(output, "{}", DynamicProgramingBenchmarkResult::HEADER).unwrap();

@@ -22,16 +22,13 @@ pub fn approximate_partition<T: Convoluter>(input: &[u16], epsilon: f64) -> f64 
 
 #[cfg(test)]
 mod tests {
-    use crate::{helpers::naive_sumset, Convoluter, FFT, NTT};
+    use crate::{helpers::dynamic_programing_partition, Convoluter, FFT, NTT};
 
     fn validate_partition_approximation<T: Convoluter>(input: &[u16], epsilon: f64) {
         let approximation = super::approximate_partition::<T>(input, epsilon);
         let t: u64 = input.iter().copied().map(u64::from).sum::<u64>() / 2;
-        let opt = naive_sumset(&input.iter().copied().map(u64::from).collect::<Vec<_>>())
-            .into_iter()
-            .filter(|&x| x <= t)
-            .max()
-            .unwrap_or(0);
+        let opt =
+            dynamic_programing_partition(&input.iter().copied().map(u64::from).collect::<Vec<_>>());
         assert!(
             (opt as f64 - approximation) <= epsilon * t as f64,
             "{}, {}, {}",
@@ -148,5 +145,13 @@ mod tests {
     fn test_partition_known_large_3_fft() {
         let input = vec![2; 100000];
         validate_known_partition_approximation::<FFT>(&input[0..100000], 0.01, 100000);
+    }
+
+    #[test]
+    fn test_partition_large_random() {
+        validate_partition_approximation::<FFT>(
+            &(0..100).map(|_| rand::random()).collect::<Vec<_>>(),
+            0.2,
+        );
     }
 }

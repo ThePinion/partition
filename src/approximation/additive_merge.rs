@@ -53,7 +53,8 @@ impl<T: Convoluter> AdditiveBoundedMerger<T> {
             &self.based_2d_representation(a),
             &self.based_2d_representation(b),
             ceil_div(self.t, self.start) as usize * 2_usize,
-            ((self.t as f64 / self.start as f64) * (self.length as f64) / self.base as f64).ceil() as usize,
+            ((self.t as f64 / self.start as f64) * (self.length as f64) / self.base as f64).ceil()
+                as usize,
         );
         self.unbased_2d_representation(&based_merged)
             .into_iter()
@@ -98,7 +99,7 @@ fn fft1d_complexity(t: u64, delta: u64) -> u64 {
 fn fft2d_complexity(start: u64, size: u64, t: u64, delta: u64) -> u64 {
     let (start, size, t, delta) = (start as f64, size as f64, t as f64, delta as f64);
     let result = ((t / start) * (t / start) * (size / delta)) as u64 + 1;
-    result 
+    result
 }
 
 #[cfg(test)]

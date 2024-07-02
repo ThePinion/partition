@@ -124,7 +124,7 @@ pub fn dynamic_programing_partition(set: &[u64]) -> u64 {
         .enumerate()
         .filter_map(|(i, &x)| if x { Some(i as u64) } else { None })
         .max()
-        .unwrap();
+        .unwrap_or(0);
 }
 
 #[cfg(test)]
@@ -164,9 +164,15 @@ mod tests {
 
         assert_eq!(dynamic_programing_partition(&vec![1, 2, 3, 4, 5, 6, 7]), 14);
 
-        assert_eq!(dynamic_programing_partition(&vec![1, 2, 3, 4, 5, 6, 7, 8]), 18);
+        assert_eq!(
+            dynamic_programing_partition(&vec![1, 2, 3, 4, 5, 6, 7, 8]),
+            18
+        );
 
-        assert_eq!(dynamic_programing_partition(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9]), 22);
+        assert_eq!(
+            dynamic_programing_partition(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            22
+        );
 
         assert_eq!(dynamic_programing_partition(&vec![2; 1000]), 1000);
     }
